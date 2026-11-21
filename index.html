@@ -7,8 +7,8 @@
   <meta name="theme-color" content="#fcfcf7">
   <title>Utsab Dey | Heavy-Flavor Physics</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23e6eaff'/%3E%3Cpath d='M5 24C11 19 10 11 17 10c8-1 6 9 1 7C12 14 21 6 27 5M7 10c1 6 9 13 19 15' fill='none' stroke='%233f51a7' stroke-linecap='round' stroke-width='1.6'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="style.css?v=28">
-  <script src="portfolio.js?v=13" defer></script>
+  <link rel="stylesheet" href="style.css?v=29">
+  <script src="portfolio.js?v=14" defer></script>
   <script src="figures.js?v=4" defer></script>
 </head>
 <body>
@@ -38,7 +38,7 @@
         <p class="hero-bio">I study how <i>B</i> mesons decay. I combine lattice QCD inputs, perturbative QCD, and heavy-quark symmetries to predict decay rates and angular observables that test the Standard Model.</p>
         <div class="hero-actions">
           <a class="button button-primary" href="#research">Explore my research</a>
-          <a class="button button-outline" href="assets/utsab-dey-cv.pdf" target="_blank" rel="noopener" aria-label="View CV (PDF, opens in a new tab)">View CV</a>
+          <button type="button" class="button button-outline" data-document="assets/utsab-dey-cv.pdf" aria-haspopup="dialog">View CV</button>
         </div>
       </div>
       <figure class="hero-portrait">
@@ -339,7 +339,7 @@
         <h2 id="research-statement-title">Research statement</h2>
         <p>My published work, ongoing projects, and future directions in heavy-flavor physics.</p>
       </div>
-      <a class="button button-outline" href="assets/research-statement.pdf" target="_blank" rel="noopener" aria-label="Read research statement (PDF, opens in a new tab)">Read research statement (PDF) <span aria-hidden="true">↗</span></a>
+      <button type="button" class="button button-outline" data-document="assets/research-statement.pdf" aria-haspopup="dialog">View research statement</button>
     </section>
 
     <section class="section section-tinted" id="publications" aria-labelledby="publications-title" data-year-filter="publication">
@@ -431,8 +431,7 @@
           <div><dt>2014–2017</dt><dd><strong>B.Sc. in Physics (Hons.)</strong><span>Asutosh College, University of Calcutta</span></dd></div>
         </dl>
         <div class="cv-actions">
-          <a class="button button-primary" href="assets/utsab-dey-cv.pdf" target="_blank" rel="noopener" aria-label="View CV (PDF, opens in a new tab)">View CV <span aria-hidden="true">↗</span></a>
-          <a class="button button-outline" href="assets/utsab-dey-cv.pdf" download="CV_Utsab.pdf">Download CV <span aria-hidden="true">↓</span></a>
+          <button type="button" class="button button-primary" data-document="assets/utsab-dey-cv.pdf" aria-haspopup="dialog">View CV</button>
         </div>
       </div>
       <div class="profile-panel" id="contact">
@@ -464,5 +463,15 @@
       <a href="#top">Back to top <span aria-hidden="true">↑</span></a>
     </div>
   </footer>
+  <dialog class="document-viewer" aria-labelledby="document-title">
+    <div class="document-viewer-header">
+      <h2 id="document-title"></h2>
+      <form method="dialog"><button class="button button-outline" autofocus>Close</button></form>
+    </div>
+    <div class="document-viewer-content">
+      <p class="document-status" role="status"></p>
+      <div class="document-pages"></div>
+    </div>
+  </dialog>
 </body>
 </html>
