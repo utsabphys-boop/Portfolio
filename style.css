@@ -306,7 +306,7 @@ details[open] > summary .disclosure-arrow::before { transform: translateY(2px) r
 }
 
 .gallery-header { border-bottom: 1px solid #e4e9f0; background: #f4f7fb; }
-.gallery-header h3, .research-projects-header h3 { font-size: 1rem; font-weight: 700; }
+.gallery-header h3 { font-size: 1rem; font-weight: 700; }
 .gallery-controls { display: flex; align-items: center; gap: .4rem; max-width: 100%; }
 .gallery-progress {
   width: clamp(6rem, 15vw, 11rem);
@@ -430,8 +430,7 @@ details[open] > summary .disclosure-arrow::before { transform: translateY(2px) r
 .research-projects-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: flex-end;
   margin-bottom: 10px;
 }
 
