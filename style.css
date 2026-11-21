@@ -487,8 +487,7 @@ h2 { margin-top: 9px; font: 400 clamp(42px, 5vw, 70px)/.99 var(--serif); letter-
   display: grid;
   grid-template-rows: auto auto 1fr auto;
   gap: 10px;
-  min-height: 240px;
-  aspect-ratio: 1;
+  min-height: 248px;
   padding: 20px 23px 17px;
   border-radius: inherit;
   list-style: none;
@@ -683,7 +682,7 @@ details[open] .card-arrow { transform: rotate(180deg); }
   .section { padding-bottom: 52px; }
   .section + .section { padding-top: 40px; }
   .research-grid { --card-gap: 10px; }
-  .research-card summary { min-height: 252px; }
+  .research-card summary { min-height: 260px; }
   .card-title { font-size: clamp(26px, 3.7vw, 35px); }
 }
 
@@ -705,8 +704,7 @@ details[open] .card-arrow { transform: rotate(180deg); }
   .research-grid { grid-auto-columns: 100%; }
   .profile-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .research-card summary {
-    min-height: clamp(240px, calc(100vw - 38px), 360px);
-    aspect-ratio: auto;
+    min-height: 240px;
     padding: 15px 17px 13px;
   }
   .card-title { font-size: 38px; }
