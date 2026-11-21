@@ -192,19 +192,35 @@ const researchCards = document.getElementById("research-cards");
 const researchScrollControls = document.querySelector(".research-scroll-controls");
 
 if (researchCards && researchScrollControls) {
-  for (const button of researchScrollControls.querySelectorAll("[data-research-scroll]")) {
-    const scroll = () => researchCards.scrollTo({
-      left: button.dataset.researchScroll === "end" ? researchCards.scrollWidth - researchCards.clientWidth : 0,
-      behavior: portfolioMotionPreference.matches ? "instant" : "smooth",
-    });
+  const firstArrow = researchScrollControls.querySelector('[data-research-scroll="start"]');
+  const lastArrow = researchScrollControls.querySelector('[data-research-scroll="end"]');
 
-    button.addEventListener("click", scroll);
-    if (button.dataset.researchScroll === "end") {
-      button.addEventListener("pointerenter", (event) => {
+  const updateArrows = () => {
+    const end = researchCards.scrollWidth - researchCards.clientWidth;
+    firstArrow.setAttribute("aria-disabled", String(researchCards.scrollLeft <= 1));
+    lastArrow.setAttribute("aria-disabled", String(end - researchCards.scrollLeft <= 1));
+  };
+
+  for (const arrow of [firstArrow, lastArrow]) {
+    const scroll = () => {
+      if (arrow.getAttribute("aria-disabled") === "true") return;
+
+      researchCards.scrollTo({
+        left: arrow === lastArrow ? researchCards.scrollWidth - researchCards.clientWidth : 0,
+        behavior: portfolioMotionPreference.matches ? "instant" : "smooth",
+      });
+    };
+
+    arrow.addEventListener("click", scroll);
+    if (arrow === lastArrow) {
+      arrow.addEventListener("pointerenter", (event) => {
         if (event.pointerType === "mouse" && !researchCards.matches(":focus-within")) scroll();
       });
     }
   }
 
   researchScrollControls.hidden = false;
+  updateArrows();
+  researchCards.addEventListener("scroll", updateArrows, { passive: true });
+  window.addEventListener("resize", updateArrows);
 }

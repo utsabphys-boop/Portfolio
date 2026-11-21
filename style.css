@@ -411,16 +411,27 @@ h2 { margin-top: 9px; font: 400 clamp(42px, 5vw, 70px)/.99 var(--serif); letter-
 }
 
 .research-scroll-controls button {
-  padding: 7px 12px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 50%;
   background: var(--surface);
   color: var(--accent-dark);
-  font: 650 13px/1.35 var(--sans);
+  font: 650 19px/1 var(--sans);
   cursor: pointer;
 }
 
-.research-scroll-controls button:hover { background: var(--lavender); }
+.research-scroll-controls button:not([aria-disabled="true"]):hover { background: var(--lavender); }
+
+.research-scroll-controls button[aria-disabled="true"] {
+  opacity: .42;
+  cursor: default;
+}
+
+.research-scroll-controls button[aria-disabled="true"] span { filter: blur(.45px); }
 
 .research-grid {
   --card-gap: 16px;
@@ -476,7 +487,8 @@ h2 { margin-top: 9px; font: 400 clamp(42px, 5vw, 70px)/.99 var(--serif); letter-
   display: grid;
   grid-template-rows: auto auto 1fr auto;
   gap: 10px;
-  min-height: 222px;
+  min-height: 240px;
+  aspect-ratio: 1;
   padding: 20px 23px 17px;
   border-radius: inherit;
   list-style: none;
@@ -692,7 +704,11 @@ details[open] .card-arrow { transform: rotate(180deg); }
   .filters { align-self: start; }
   .research-grid { grid-auto-columns: 100%; }
   .profile-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
-  .research-card summary { min-height: 0; padding: 15px 17px 13px; }
+  .research-card summary {
+    min-height: clamp(240px, calc(100vw - 38px), 360px);
+    aspect-ratio: auto;
+    padding: 15px 17px 13px;
+  }
   .card-title { font-size: 38px; }
   .publication-list, .conference-list { padding-inline: 14px; border-radius: 19px; }
   .publication { grid-template-columns: 41px minmax(0, 1fr); gap: 7px 9px; padding-block: 15px; }
