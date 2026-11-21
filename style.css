@@ -429,34 +429,14 @@ h2 { margin-top: 9px; font: 400 clamp(42px, 5vw, 70px)/.99 var(--serif); letter-
   background: linear-gradient(145deg, #f0efff, #d1d4f8);
 }
 
-.research-scroll-controls button span {
-  position: relative;
-  width: 20px;
-  height: 14px;
-}
-
-.research-scroll-controls button span::before,
-.research-scroll-controls button span::after {
-  content: "";
-  position: absolute;
-}
-
 .research-scroll-controls button span::before {
-  inset: 5.5px 0 auto;
-  height: 3px;
-  border-radius: 2px;
+  content: "";
+  display: block;
+  width: 13px;
+  height: 16px;
   background: currentColor;
-}
-
-.research-scroll-controls button span::after {
-  top: 2px;
-  right: 1px;
-  width: 10px;
-  height: 10px;
-  border-top: 3px solid currentColor;
-  border-right: 3px solid currentColor;
-  border-top-right-radius: 2.5px;
-  transform: rotate(45deg);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  transform: translateX(2px);
 }
 
 .research-scroll-controls [data-research-scroll="start"] span { transform: rotate(180deg); }
