@@ -413,18 +413,48 @@ h2 { margin-top: 9px; font: 400 clamp(42px, 5vw, 70px)/.99 var(--serif); letter-
 .research-scroll-controls button {
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   padding: 0;
-  border: 1px solid var(--line);
+  border: 2px solid var(--accent-dark);
   border-radius: 50%;
-  background: var(--surface);
-  color: var(--accent-dark);
-  font: 650 19px/1 var(--sans);
+  background: var(--accent-dark);
+  color: white;
   cursor: pointer;
 }
 
-.research-scroll-controls button:not([aria-disabled="true"]):hover { background: var(--lavender); }
+.research-scroll-controls button:not([aria-disabled="true"]):hover { background: var(--accent); }
+
+.research-scroll-controls button span {
+  position: relative;
+  width: 20px;
+  height: 14px;
+}
+
+.research-scroll-controls button span::before,
+.research-scroll-controls button span::after {
+  content: "";
+  position: absolute;
+}
+
+.research-scroll-controls button span::before {
+  inset: 5.5px 0 auto;
+  height: 3px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.research-scroll-controls button span::after {
+  top: 2px;
+  right: 1px;
+  width: 10px;
+  height: 10px;
+  border-top: 3px solid currentColor;
+  border-right: 3px solid currentColor;
+  transform: rotate(45deg);
+}
+
+.research-scroll-controls [data-research-scroll="start"] span { transform: rotate(180deg); }
 
 .research-scroll-controls button[aria-disabled="true"] {
   opacity: .42;
