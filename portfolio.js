@@ -24,16 +24,21 @@ portfolioMotionPreference.addEventListener?.("change", (event) => {
 
 if ("IntersectionObserver" in window) {
   const entranceObserver = new IntersectionObserver((entries, observer) => {
-    for (const { target, isIntersecting } of entries) {
+    let delay = 0;
+
+    for (const { target, isIntersecting, boundingClientRect, rootBounds } of entries) {
       if (!isIntersecting) continue;
       observer.unobserve(target);
 
-      if (!target.matches(":focus-within")) {
-        playPortfolioAnimation(target, [
-          { opacity: .45, transform: "translateY(14px)" },
-          { opacity: 1, transform: "translateY(0)" },
-        ], { duration: 440 });
-      }
+      if (!rootBounds || boundingClientRect.top < rootBounds.top ||
+          target.matches(":focus-within")) continue;
+
+      const animation = playPortfolioAnimation(target, [
+        { opacity: .86, transform: "translateY(8px)" },
+        { opacity: 1, transform: "translateY(0)" },
+      ], { duration: 420, delay, fill: "backwards" });
+
+      if (animation) delay = Math.min(delay + 35, 105);
     }
   }, { rootMargin: "0px 0px -24px" });
 
