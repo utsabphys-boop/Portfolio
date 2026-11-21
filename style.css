@@ -306,7 +306,7 @@ details[open] > summary .disclosure-arrow::before { transform: translateY(2px) r
 }
 
 .gallery-header { border-bottom: 1px solid #e4e9f0; background: #f4f7fb; }
-.gallery-header h3 { font-size: 1rem; font-weight: 700; }
+.gallery-header h3, .research-projects-header h3 { font-size: 1rem; font-weight: 700; }
 .gallery-controls { display: flex; align-items: center; gap: .4rem; max-width: 100%; }
 .gallery-progress {
   width: clamp(6rem, 15vw, 11rem);
@@ -427,19 +427,18 @@ details[open] > summary .disclosure-arrow::before { transform: translateY(2px) r
 
 .research-projects { min-width: 0; }
 
-.research-scroll-controls h3 {
-  margin: 0;
-  color: var(--accent-dark);
-  font: 400 clamp(1.45rem, 2.6vw, 2rem)/1.1 var(--serif);
-  text-align: center;
+.research-projects-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
 .research-scroll-controls:not([hidden]) {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
+  display: flex;
+  flex: none;
   gap: 8px;
-  margin-bottom: 10px;
 }
 
 .research-scroll-controls button {
