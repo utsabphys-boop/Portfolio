@@ -416,14 +416,18 @@ h2 { margin-top: 9px; font: 400 clamp(42px, 5vw, 70px)/.99 var(--serif); letter-
   width: 44px;
   height: 44px;
   padding: 0;
-  border: 2px solid var(--accent-dark);
+  border: 1px solid #aaaee0;
   border-radius: 50%;
-  background: var(--accent-dark);
-  color: white;
+  background: linear-gradient(145deg, #faf9ff, #e2e2fb);
+  box-shadow: inset 0 0 0 3px #ffffff9c, 0 3px 8px #29388118;
+  color: var(--accent-dark);
   cursor: pointer;
 }
 
-.research-scroll-controls button:not([aria-disabled="true"]):hover { background: var(--accent); }
+.research-scroll-controls button:not([aria-disabled="true"]):hover {
+  border-color: var(--accent);
+  background: linear-gradient(145deg, #f0efff, #d1d4f8);
+}
 
 .research-scroll-controls button span {
   position: relative;
@@ -451,6 +455,7 @@ h2 { margin-top: 9px; font: 400 clamp(42px, 5vw, 70px)/.99 var(--serif); letter-
   height: 10px;
   border-top: 3px solid currentColor;
   border-right: 3px solid currentColor;
+  border-top-right-radius: 2.5px;
   transform: rotate(45deg);
 }
 
@@ -458,6 +463,7 @@ h2 { margin-top: 9px; font: 400 clamp(42px, 5vw, 70px)/.99 var(--serif); letter-
 
 .research-scroll-controls button[aria-disabled="true"] {
   opacity: .42;
+  box-shadow: inset 0 0 0 3px #ffffff9c;
   cursor: default;
 }
 
