@@ -402,7 +402,7 @@ h2 { margin-top: 9px; font: 400 clamp(42px, 5vw, 70px)/.99 var(--serif); letter-
   .gallery-media { padding-inline: 3rem; }
 }
 
-.research-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; gap: 16px; }
+.research-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: start; gap: 16px; }
 .research-card {
   --card-fill: #eef5ff;
   --card-edge: #dce7f7;
@@ -427,6 +427,15 @@ h2 { margin-top: 9px; font: 400 clamp(42px, 5vw, 70px)/.99 var(--serif); letter-
   --card-illustration: #f9e8c7;
   --card-ink: #805426;
 }
+
+.research-card-future {
+  --card-fill: #f1edfc;
+  --card-edge: #e6def5;
+  --card-illustration: #e7ddf8;
+  --card-ink: #5c4383;
+}
+
+.research-card-future .card-kicker { justify-content: flex-end; }
 
 .research-card:hover, .research-card[open] { border-color: var(--card-ink); box-shadow: 0 8px 20px #3552780c; }
 .research-card summary {
@@ -469,8 +478,6 @@ details[open] .open-label { display: inline; }
 details[open] .card-arrow { transform: rotate(180deg); }
 .project-detail { margin: 0 23px 23px; }
 .project-detail .text-link { margin-top: 11px; }
-.research-outlook { max-width: 80ch; margin-top: 23px; padding-left: 15px; border-left: 3px solid #e5c988; color: var(--muted); font-size: 15px; }
-.research-outlook strong { color: var(--text); }
 
 .filters {
   display: flex;
@@ -608,9 +615,7 @@ details[open] .card-arrow { transform: rotate(180deg); }
     min-width: 0;
     margin-bottom: 0;
   }
-  #research > .research-grid,
-  #research > .research-outlook { grid-column: 1 / -1; }
-  #research > .research-outlook { margin-top: 0; }
+  #research > .research-grid { grid-column: 1 / -1; }
 }
 
 @media (min-width: 1500px) {
@@ -622,6 +627,7 @@ details[open] .card-arrow { transform: rotate(180deg); }
 @media (max-width: 1000px) {
   .shell { width: calc(100% - 64px); }
   .hero { padding-inline: 30px; }
+  .research-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .research-card summary { padding-inline: 17px; }
   .project-detail { margin-inline: 17px; }
 }
