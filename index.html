@@ -8,7 +8,7 @@
   <title>Utsab Dey | Heavy-Flavor Physics</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23e6eaff'/%3E%3Cpath d='M5 24C11 19 10 11 17 10c8-1 6 9 1 7C12 14 21 6 27 5M7 10c1 6 9 13 19 15' fill='none' stroke='%233f51a7' stroke-linecap='round' stroke-width='1.6'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css?v=21">
-  <script src="portfolio.js?v=12" defer></script>
+  <script src="portfolio.js?v=13" defer></script>
   <script src="figures.js?v=4" defer></script>
 </head>
 <body>
@@ -280,52 +280,54 @@
           <button type="button" data-research-scroll="start" aria-controls="research-cards" aria-label="Show first research projects" aria-disabled="true"><span aria-hidden="true"></span></button>
           <button type="button" data-research-scroll="end" aria-controls="research-cards" aria-label="Show Future Directions"><span aria-hidden="true"></span></button>
         </div>
-        <div class="research-grid" id="research-cards" role="region" aria-label="Research projects and future directions" tabindex="0">
-          <details class="research-card">
-            <summary>
-              <span class="card-kicker"><span class="card-discipline">Published research</span><span class="card-orbit" aria-hidden="true"></span></span>
-              <span class="card-title">Exclusive <i>B</i><sub>c</sub> decays</span>
-              <span class="card-description">Using lattice results and heavy-quark symmetries to determine form factors for charmonium and open-charm final states. These form factors help predict decay rates and angular observables.</span>
-              <span class="card-action"><span class="closed-label">Project overview</span><span class="open-label">Close overview</span><span class="card-arrow" aria-hidden="true">↓</span></span>
-            </summary>
-            <div class="project-detail">
-              <p>My work uses lattice form factors to constrain meson distribution amplitudes in perturbative QCD. I use the resulting form factors to predict branching fractions, lepton flavor universality ratios, polarization fractions, and angular observables in charged-current and rare decays.</p>
-              <a class="text-link" href="#publications">Related papers <span aria-hidden="true">↓</span></a>
-            </div>
-          </details>
-          <details class="research-card">
-            <summary>
-              <span class="card-kicker"><span class="card-discipline">Work in progress</span><span class="card-orbit" aria-hidden="true"></span></span>
-              <span class="card-title">Charmonium form factors</span>
-              <span class="card-description">Studying how radial nodes in ψ(2S) and η<sub>c</sub>(2S) affect <i>B</i><sub>c</sub> decay form factors. I also compare quark-model and perturbative QCD predictions for ground-state transitions.</span>
-              <span class="card-action"><span class="closed-label">Project overview</span><span class="open-label">Close overview</span><span class="card-arrow" aria-hidden="true">↓</span></span>
-            </summary>
-            <div class="project-detail">
-              <p>I am studying how radial nodes in ψ(2S) and η<sub>c</sub>(2S) affect <i>B</i><sub>c</sub> decay form factors. In parallel, I am fitting a relativistic quark model to lattice results for <i>J</i>/ψ and η<sub>c</sub> to compare its predictions with those of perturbative QCD under the same constraints.</p>
-            </div>
-          </details>
-          <details class="research-card">
-            <summary>
-              <span class="card-kicker"><span class="card-discipline">Work in progress</span><span class="card-orbit" aria-hidden="true"></span></span>
-              <span class="card-title">Inclusive <i>B</i> decays</span>
-              <span class="card-description">Using inclusive semileptonic decays to investigate differing estimates of |<i>V</i><sub>cb</sub>|. I calculate the decay width and study moments of lepton energy and hadronic mass.</span>
-              <span class="card-action"><span class="closed-label">Project overview</span><span class="open-label">Close overview</span><span class="card-arrow" aria-hidden="true">↓</span></span>
-            </summary>
-            <div class="project-detail">
-              <p>I use heavy-quark effective theory and the operator product expansion to compute the decay width through order 1/<i>m</i><sub>b</sub><sup>3</sup> and study moments of lepton energy, hadronic mass, and <i>q</i><sup>2</sup>. I am also studying how scalar, pseudoscalar, and tensor interactions affect these observables.</p>
-            </div>
-          </details>
-          <details class="research-card research-card-future">
-            <summary>
-              <span class="card-kicker" aria-hidden="true"><span class="card-orbit"></span></span>
-              <span class="card-title">Future Directions</span>
-              <span class="card-description">I plan to calculate next-to-leading-order corrections to semileptonic form factors and inclusive decay coefficients. I also plan to study rare decays and use Bayesian methods to estimate parameters.</span>
-              <span class="card-action"><span class="closed-label">View plans</span><span class="open-label">Close plans</span><span class="card-arrow" aria-hidden="true">↓</span></span>
-            </summary>
-            <div class="project-detail">
-              <p>I plan to calculate next-to-leading-order corrections to semileptonic form factors and inclusive decay coefficients, study new-physics contributions in rare decays, and use Bayesian methods for parameter estimation.</p>
-            </div>
-          </details>
+        <div class="research-viewport">
+          <div class="research-grid" id="research-cards" role="region" aria-label="Research projects and future directions" tabindex="0">
+            <details class="research-card">
+              <summary>
+                <span class="card-kicker"><span class="card-discipline">Published research</span><span class="card-orbit" aria-hidden="true"></span></span>
+                <span class="card-title">Exclusive <i>B</i><sub>c</sub> decays</span>
+                <span class="card-description">Using lattice results and heavy-quark symmetries to determine form factors for charmonium and open-charm final states. These form factors help predict decay rates and angular observables.</span>
+                <span class="card-action"><span class="closed-label">Project overview</span><span class="open-label">Close overview</span><span class="card-arrow" aria-hidden="true">↓</span></span>
+              </summary>
+              <div class="project-detail">
+                <p>My work uses lattice form factors to constrain meson distribution amplitudes in perturbative QCD. I use the resulting form factors to predict branching fractions, lepton flavor universality ratios, polarization fractions, and angular observables in charged-current and rare decays.</p>
+                <a class="text-link" href="#publications">Related papers <span aria-hidden="true">↓</span></a>
+              </div>
+            </details>
+            <details class="research-card">
+              <summary>
+                <span class="card-kicker"><span class="card-discipline">Work in progress</span><span class="card-orbit" aria-hidden="true"></span></span>
+                <span class="card-title">Charmonium form factors</span>
+                <span class="card-description">Studying how radial nodes in ψ(2S) and η<sub>c</sub>(2S) affect <i>B</i><sub>c</sub> decay form factors. I also compare quark-model and perturbative QCD predictions for ground-state transitions.</span>
+                <span class="card-action"><span class="closed-label">Project overview</span><span class="open-label">Close overview</span><span class="card-arrow" aria-hidden="true">↓</span></span>
+              </summary>
+              <div class="project-detail">
+                <p>I am studying how radial nodes in ψ(2S) and η<sub>c</sub>(2S) affect <i>B</i><sub>c</sub> decay form factors. In parallel, I am fitting a relativistic quark model to lattice results for <i>J</i>/ψ and η<sub>c</sub> to compare its predictions with those of perturbative QCD under the same constraints.</p>
+              </div>
+            </details>
+            <details class="research-card">
+              <summary>
+                <span class="card-kicker"><span class="card-discipline">Work in progress</span><span class="card-orbit" aria-hidden="true"></span></span>
+                <span class="card-title">Inclusive <i>B</i> decays</span>
+                <span class="card-description">Using inclusive semileptonic decays to investigate differing estimates of |<i>V</i><sub>cb</sub>|. I calculate the decay width and study moments of lepton energy and hadronic mass.</span>
+                <span class="card-action"><span class="closed-label">Project overview</span><span class="open-label">Close overview</span><span class="card-arrow" aria-hidden="true">↓</span></span>
+              </summary>
+              <div class="project-detail">
+                <p>I use heavy-quark effective theory and the operator product expansion to compute the decay width through order 1/<i>m</i><sub>b</sub><sup>3</sup> and study moments of lepton energy, hadronic mass, and <i>q</i><sup>2</sup>. I am also studying how scalar, pseudoscalar, and tensor interactions affect these observables.</p>
+              </div>
+            </details>
+            <details class="research-card research-card-future">
+              <summary>
+                <span class="card-kicker" aria-hidden="true"><span class="card-orbit"></span></span>
+                <span class="card-title">Future Directions</span>
+                <span class="card-description">I plan to calculate next-to-leading-order corrections to semileptonic form factors and inclusive decay coefficients. I also plan to study rare decays and use Bayesian methods to estimate parameters.</span>
+                <span class="card-action"><span class="closed-label">View plans</span><span class="open-label">Close plans</span><span class="card-arrow" aria-hidden="true">↓</span></span>
+              </summary>
+              <div class="project-detail">
+                <p>I plan to calculate next-to-leading-order corrections to semileptonic form factors and inclusive decay coefficients, study new-physics contributions in rare decays, and use Bayesian methods for parameter estimation.</p>
+              </div>
+            </details>
+          </div>
         </div>
       </div>
     </section>
@@ -338,7 +340,7 @@
       <a class="button button-outline" href="assets/research-statement.pdf" target="_blank" rel="noopener" aria-label="Read research statement (PDF, opens in a new tab)">Read research statement (PDF) <span aria-hidden="true">↗</span></a>
     </section>
 
-    <section class="section" id="publications" aria-labelledby="publications-title" data-year-filter="publication">
+    <section class="section section-tinted" id="publications" aria-labelledby="publications-title" data-year-filter="publication">
       <div class="section-heading">
         <div><p class="eyebrow"><span class="section-mark" aria-hidden="true"></span> Journal articles</p><h2 id="publications-title">Publications</h2></div>
         <div class="filters" role="group" aria-label="Filter publications by year" hidden>
@@ -398,7 +400,7 @@
       <p class="visually-hidden" role="status"></p>
     </section>
 
-    <section class="section" id="workshops" aria-labelledby="workshops-title" data-year-filter="workshop">
+    <section class="section section-tinted" id="workshops" aria-labelledby="workshops-title" data-year-filter="workshop">
       <div class="section-heading">
         <h2 id="workshops-title">Workshops attended</h2>
         <div class="filters" role="group" aria-label="Filter workshops by year" hidden>

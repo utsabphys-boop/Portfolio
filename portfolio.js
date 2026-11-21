@@ -224,10 +224,15 @@ if (researchCards && researchScrollControls) {
   const firstArrow = researchScrollControls.querySelector('[data-research-scroll="start"]');
   const lastArrow = researchScrollControls.querySelector('[data-research-scroll="end"]');
 
+  const researchViewport = researchCards.parentElement;
   const updateArrows = () => {
     const end = researchCards.scrollWidth - researchCards.clientWidth;
-    firstArrow.setAttribute("aria-disabled", String(researchCards.scrollLeft <= 1));
-    lastArrow.setAttribute("aria-disabled", String(end - researchCards.scrollLeft <= 1));
+    const canScrollLeft = researchCards.scrollLeft > 1;
+    const canScrollRight = end - researchCards.scrollLeft > 1;
+    firstArrow.setAttribute("aria-disabled", String(!canScrollLeft));
+    lastArrow.setAttribute("aria-disabled", String(!canScrollRight));
+    researchViewport.classList.toggle("can-scroll-left", canScrollLeft);
+    researchViewport.classList.toggle("can-scroll-right", canScrollRight);
   };
 
   for (const arrow of [firstArrow, lastArrow]) {
