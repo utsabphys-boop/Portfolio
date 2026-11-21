@@ -76,6 +76,7 @@ for (const card of document.querySelectorAll("details")) {
   const arrow = summary?.querySelector(".card-arrow, .disclosure-arrow");
   if (!arrow) continue;
 
+  const hoverBoundary = card.closest(".research-intro, .profile-panel") ?? card;
   let animation;
   let targetOpen;
 
@@ -112,7 +113,11 @@ for (const card of document.querySelectorAll("details")) {
     const resize = playPortfolioAnimation(card, [
       { height: `${startHeight}px`, overflow: "hidden" },
       { height: `${endHeight}px`, overflow: "hidden" },
-    ], { duration: 320, fill: "both" });
+    ], {
+      duration: open ? 320 : 420,
+      easing: open ? "cubic-bezier(.2,.65,.3,1)" : "cubic-bezier(.45,0,.25,1)",
+      fill: "both",
+    });
     animation = resize;
 
     const settle = () => {
@@ -135,7 +140,7 @@ for (const card of document.querySelectorAll("details")) {
     if (event.pointerType === "mouse") setOpen(true);
   });
 
-  card.addEventListener("pointerleave", (event) => {
+  hoverBoundary.addEventListener("pointerleave", (event) => {
     if (event.pointerType !== "mouse") return;
     const focused = document.activeElement;
     if (card.contains(focused) && !summary.contains(focused)) return;
