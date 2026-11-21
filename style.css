@@ -402,7 +402,41 @@ h2 { margin-top: 9px; font: 400 clamp(42px, 5vw, 70px)/.99 var(--serif); letter-
   .gallery-media { padding-inline: 3rem; }
 }
 
-.research-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: start; gap: 16px; }
+.research-scroll-controls:not([hidden]) {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.research-scroll-controls button {
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--accent-dark);
+  font: 650 13px/1.35 var(--sans);
+  cursor: pointer;
+}
+
+.research-scroll-controls button:hover { background: var(--lavender); }
+
+.research-grid {
+  --card-gap: 16px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 2 * var(--card-gap)) / 3);
+  align-items: start;
+  gap: var(--card-gap);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 5px;
+  padding: 5px;
+  margin: 0 -5px;
+}
+
+.research-grid > .research-card { scroll-snap-align: start; }
 .research-card {
   --card-fill: #eef5ff;
   --card-edge: #dce7f7;
@@ -615,7 +649,7 @@ details[open] .card-arrow { transform: rotate(180deg); }
     min-width: 0;
     margin-bottom: 0;
   }
-  #research > .research-grid { grid-column: 1 / -1; }
+  #research > .research-projects { grid-column: 1 / -1; }
 }
 
 @media (min-width: 1500px) {
@@ -627,7 +661,7 @@ details[open] .card-arrow { transform: rotate(180deg); }
 @media (max-width: 1000px) {
   .shell { width: calc(100% - 64px); }
   .hero { padding-inline: 30px; }
-  .research-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .research-grid { grid-auto-columns: calc((100% - var(--card-gap)) / 2); }
   .research-card summary { padding-inline: 17px; }
   .project-detail { margin-inline: 17px; }
 }
@@ -636,7 +670,7 @@ details[open] .card-arrow { transform: rotate(180deg); }
   .hero { gap: 1.5rem; }
   .section { padding-bottom: 52px; }
   .section + .section { padding-top: 40px; }
-  .research-grid { gap: 10px; }
+  .research-grid { --card-gap: 10px; }
   .research-card summary { min-height: 252px; }
   .card-title { font-size: clamp(26px, 3.7vw, 35px); }
 }
@@ -656,7 +690,8 @@ details[open] .card-arrow { transform: rotate(180deg); }
   .section + .section { padding-top: 34px; }
   .section-heading { align-items: start; flex-direction: column; gap: 13px; margin-bottom: 20px; }
   .filters { align-self: start; }
-  .research-grid, .profile-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .research-grid { grid-auto-columns: 100%; }
+  .profile-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .research-card summary { min-height: 0; padding: 15px 17px 13px; }
   .card-title { font-size: 38px; }
   .publication-list, .conference-list { padding-inline: 14px; border-radius: 19px; }

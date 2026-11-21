@@ -187,3 +187,24 @@ for (const section of document.querySelectorAll("[data-year-filter]")) {
     ];
   });
 }
+
+const researchCards = document.getElementById("research-cards");
+const researchScrollControls = document.querySelector(".research-scroll-controls");
+
+if (researchCards && researchScrollControls) {
+  for (const button of researchScrollControls.querySelectorAll("[data-research-scroll]")) {
+    const scroll = () => researchCards.scrollTo({
+      left: button.dataset.researchScroll === "end" ? researchCards.scrollWidth - researchCards.clientWidth : 0,
+      behavior: portfolioMotionPreference.matches ? "instant" : "smooth",
+    });
+
+    button.addEventListener("click", scroll);
+    if (button.dataset.researchScroll === "end") {
+      button.addEventListener("pointerenter", (event) => {
+        if (event.pointerType === "mouse" && !researchCards.matches(":focus-within")) scroll();
+      });
+    }
+  }
+
+  researchScrollControls.hidden = false;
+}
