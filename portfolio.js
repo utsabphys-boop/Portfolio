@@ -212,11 +212,9 @@ if (researchCards && researchScrollControls) {
     };
 
     arrow.addEventListener("click", scroll);
-    if (arrow === lastArrow) {
-      arrow.addEventListener("pointerenter", (event) => {
-        if (event.pointerType === "mouse" && !researchCards.matches(":focus-within")) scroll();
-      });
-    }
+    arrow.addEventListener("pointerenter", (event) => {
+      if (event.pointerType === "mouse") scroll();
+    });
   }
 
   researchScrollControls.hidden = false;
