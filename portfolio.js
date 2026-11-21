@@ -294,12 +294,13 @@ if (documentViewer) {
         pdfjs.GlobalWorkerOptions.workerSrc = pdfLibrary + "pdf.worker.min.mjs";
         current.loadingTask = pdfjs.getDocument({ url: button.dataset.document });
         const pdf = await current.loadingTask.promise;
+        const renderWidth = Math.min(3200, Math.max(2200, pages.clientWidth * window.devicePixelRatio));
 
         for (let number = 1; number <= pdf.numPages; number++) {
           if (active !== current || !documentViewer.open) return;
           const page = await pdf.getPage(number);
           const original = page.getViewport({ scale: 1 });
-          const viewport = page.getViewport({ scale: 1400 / original.width });
+          const viewport = page.getViewport({ scale: renderWidth / original.width });
           const canvas = document.createElement("canvas");
           canvas.width = Math.ceil(viewport.width);
           canvas.height = Math.ceil(viewport.height);

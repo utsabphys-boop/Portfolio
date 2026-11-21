@@ -803,9 +803,10 @@ button[data-document], .document-viewer button {
 }
 
 .document-viewer {
-  width: min(92vw, 850px);
-  max-height: 90vh;
-  max-height: 90dvh;
+  width: min(96vw, 1200px);
+  max-width: calc(100vw - 16px);
+  max-height: 94vh;
+  max-height: 94dvh;
   padding: 0;
   overflow: auto;
   border: 1px solid var(--line);
