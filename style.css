@@ -425,15 +425,7 @@ details[open] > summary .disclosure-arrow::before { transform: translateY(2px) r
   .gallery-media { padding-inline: 3rem; }
 }
 
-.research-projects {
-  --carousel-surface: #f0f2fc;
-  min-width: 0;
-  padding: clamp(10px, 1.5vw, 18px);
-  border: 1px solid #d9dff4;
-  border-radius: 24px;
-  background: linear-gradient(145deg, #f7f8ff, var(--carousel-surface));
-  box-shadow: 0 8px 24px #2938810d;
-}
+.research-projects { min-width: 0; }
 
 .research-scroll-controls h3 {
   margin: 0;
@@ -505,12 +497,12 @@ details[open] > summary .disclosure-arrow::before { transform: translateY(2px) r
 
 .research-viewport::before {
   left: 0;
-  background: linear-gradient(to right, var(--carousel-surface), transparent);
+  background: linear-gradient(to right, var(--background), transparent);
 }
 
 .research-viewport::after {
   right: 0;
-  background: linear-gradient(to left, var(--carousel-surface), transparent);
+  background: linear-gradient(to left, var(--background), transparent);
 }
 
 .research-viewport.can-scroll-left::before,
