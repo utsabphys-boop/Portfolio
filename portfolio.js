@@ -71,17 +71,24 @@ if ("IntersectionObserver" in window) {
   });
 }
 
-for (const card of document.querySelectorAll("details.research-card, details.research-overview")) {
+for (const card of document.querySelectorAll("details")) {
   const summary = card.querySelector("summary");
+  const arrow = summary?.querySelector(".card-arrow, .disclosure-arrow");
+  if (!arrow) continue;
+
   let animation;
   let targetOpen;
 
-  summary.addEventListener("click", (event) => {
-    if (event.defaultPrevented || typeof card.animate !== "function") return;
-    if (portfolioMotionPreference.matches && !animation) return;
+  const isOpeningOrOpen = () => animation ? targetOpen : card.open;
 
-    event.preventDefault();
-    targetOpen = animation ? !targetOpen : !card.open;
+  const setOpen = (open) => {
+    if (open === isOpeningOrOpen()) return;
+    targetOpen = open;
+    if (!animation && (portfolioMotionPreference.matches || typeof card.animate !== "function")) {
+      card.open = open;
+      return;
+    }
+
     const startHeight = card.getBoundingClientRect().height;
     const previousAnimation = animation;
     animation = undefined;
@@ -116,6 +123,23 @@ for (const card of document.querySelectorAll("details.research-card, details.res
     };
     resize.addEventListener("finish", settle, { once: true });
     resize.addEventListener("cancel", settle, { once: true });
+  };
+
+  summary.addEventListener("click", (event) => {
+    if (event.defaultPrevented) return;
+    event.preventDefault();
+    setOpen(!isOpeningOrOpen());
+  });
+
+  arrow.addEventListener("pointerenter", (event) => {
+    if (event.pointerType === "mouse") setOpen(true);
+  });
+
+  card.addEventListener("pointerleave", (event) => {
+    if (event.pointerType !== "mouse") return;
+    const focused = document.activeElement;
+    if (card.contains(focused) && !summary.contains(focused)) return;
+    setOpen(false);
   });
 }
 

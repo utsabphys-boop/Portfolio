@@ -250,18 +250,22 @@ h2 { margin-top: 9px; font: 400 clamp(42px, 5vw, 70px)/.99 var(--serif); letter-
 }
 .research-overview summary:hover { text-decoration: underline; text-underline-offset: 3px; }
 .research-overview summary::-webkit-details-marker { display: none; }
-.research-overview summary::after {
-  flex: none;
+.disclosure-arrow {
+  display: grid;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+}
+.disclosure-arrow::before {
+  content: "";
   width: .48rem;
   height: .48rem;
-  margin-right: .2rem;
   border: solid currentColor;
   border-width: 0 1.5px 1.5px 0;
-  content: "";
   transform: translateY(-2px) rotate(45deg);
-  transition: transform 180ms ease;
 }
-.research-overview[open] summary::after { transform: translateY(2px) rotate(225deg); }
+details[open] > summary .disclosure-arrow::before { transform: translateY(2px) rotate(225deg); }
 .research-overview-copy { display: grid; gap: .65rem; max-width: 60ch; padding-top: .35rem; color: var(--muted); font-size: .9375rem; }
 
 .research-gallery {
@@ -630,15 +634,6 @@ details[open] .card-arrow { transform: rotate(180deg); }
 }
 .contact-webmail summary:hover { color: var(--accent-dark); text-decoration: underline; text-underline-offset: 3px; }
 .contact-webmail summary::-webkit-details-marker { display: none; }
-.contact-webmail summary::after {
-  width: .43rem;
-  height: .43rem;
-  border: solid currentColor;
-  border-width: 0 1.5px 1.5px 0;
-  content: "";
-  transform: translateY(-2px) rotate(45deg);
-}
-.contact-webmail[open] summary::after { transform: translateY(2px) rotate(225deg); }
 .mail-options {
   width: fit-content;
   max-width: 100%;
