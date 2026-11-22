@@ -94,6 +94,7 @@ h1, h2, h3, p, figure { margin: 0; }
 .nav { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 7px clamp(12px, 2.05vw, 30px); font-size: 14px; font-weight: 550; color: var(--muted); }
 .nav a { white-space: nowrap; }
 .mobile-menu, .research-card-position { display: none; }
+.mobile-nav-panel { display: contents; }
 .nav a:hover, .footer-inner a:hover { color: var(--accent); }
 .nav .nav-contact {
   padding: 8px 15px;
@@ -760,7 +761,7 @@ details[open] .card-arrow { transform: rotate(180deg); }
 
 @media (max-width: 680px) {
   .shell { width: calc(100% - 36px); }
-  .header-inner { flex-wrap: wrap; gap: 10px 21px; min-height: 0; padding-block: 13px; }
+  .header-inner { flex-wrap: wrap; gap: 0 21px; min-height: 0; padding-block: 13px; }
   .nav { justify-content: flex-start; gap: 7px 12px; font-size: 13px; }
   .nav .nav-contact { padding: 4px 10px; }
 
@@ -777,17 +778,18 @@ details[open] .card-arrow { transform: rotate(180deg); }
     cursor: pointer;
   }
   .mobile-menu[aria-expanded="true"] { background: var(--lavender); }
+  .mobile-nav-panel { display: flow-root; flex: 0 0 100%; }
+  .mobile-nav-panel[data-collapsed] { display: none; }
   .header-inner .nav {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    flex-basis: 100%;
     gap: 0;
+    margin-top: 10px;
     padding: 4px 8px;
     border: 1px solid var(--line);
     border-radius: 12px;
     background: var(--surface);
   }
-  .header-inner .nav[data-collapsed] { display: none; }
   .header-inner .nav a + a { border-top: 1px solid var(--line); }
   .header-inner .nav .nav-contact {
     padding: 6px 9px;
@@ -836,6 +838,13 @@ details[open] .card-arrow { transform: rotate(180deg); }
   .section + .section { padding-top: 34px; }
   .section-heading { align-items: start; flex-direction: column; gap: 13px; margin-bottom: 20px; }
   .filters { align-self: start; }
+  .filters button[aria-pressed] {
+    --active-year: 0%;
+    background-color: color-mix(in srgb, var(--accent) var(--year-highlight, var(--active-year)), transparent);
+    color: color-mix(in srgb, white var(--year-highlight, var(--active-year)), var(--muted));
+  }
+  .filters button[aria-pressed="true"] { --active-year: 100%; }
+  .filters[data-dragging] button { transition: none; }
   [data-year-filter] { touch-action: pan-y pinch-zoom; }
   [data-year-viewport] { overflow: clip; overflow-clip-margin: 4px; }
   .research-grid { grid-auto-columns: 100%; }

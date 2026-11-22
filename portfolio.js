@@ -240,6 +240,8 @@ for (const section of document.querySelectorAll("[data-year-filter]")) {
 
     const { offset, preview, direction, next } = current;
     results.style.transform = "";
+    filters.removeAttribute("data-dragging");
+    for (const button of buttons) button.style.removeProperty("--year-highlight");
     if (!offset) {
       preview?.remove();
       return;
@@ -285,6 +287,7 @@ for (const section of document.querySelectorAll("[data-year-filter]")) {
       }
       if (Math.abs(dx) < 10) return;
       stopTransition();
+      if (canAnimate()) filters.setAttribute("data-dragging", "");
     }
 
     const direction = dx < 0 ? 1 : -1;
@@ -303,6 +306,13 @@ for (const section of document.querySelectorAll("[data-year-filter]")) {
     const width = viewport.clientWidth;
     drag.offset = Math.max(-width, Math.min(width, drag.next ? dx : dx * .22));
     if (canAnimate()) {
+      const current = selectedIndex();
+      const next = buttons.indexOf(drag.next);
+      const blend = next >= 0 ? Math.min(1, Math.abs(drag.offset) / (width * .55)) : 0;
+      for (const [index, button] of buttons.entries()) {
+        const strength = index === current ? 1 - blend : index === next ? blend : 0;
+        button.style.setProperty("--year-highlight", `${strength * 100}%`);
+      }
       results.style.transform = `translateX(${drag.offset}px)`;
       if (drag.preview) drag.preview.style.transform = `translateX(calc(${direction * 100}% + ${drag.offset}px))`;
     }
@@ -330,32 +340,33 @@ const mobileMenu = document.querySelector(".mobile-menu");
 const siteNavigation = document.getElementById("site-navigation");
 
 if (mobileMenu && siteNavigation) {
+  const menuPanel = siteNavigation.parentElement;
   let menuAnimation;
 
   const setMenuOpen = (open, animate = false) => {
-    const heightBefore = siteNavigation.getBoundingClientRect().height;
-    const opacityBefore = heightBefore ? getComputedStyle(siteNavigation).opacity : ".25";
+    const heightBefore = menuPanel.getBoundingClientRect().height;
+    const opacityBefore = heightBefore ? getComputedStyle(menuPanel).opacity : ".25";
     const previous = menuAnimation;
     menuAnimation = undefined;
     previous?.cancel();
 
     mobileMenu.setAttribute("aria-expanded", String(open));
     const useMotion = animate && phoneLayout.matches && !portfolioMotionPreference.matches &&
-      typeof siteNavigation.animate === "function";
-    siteNavigation.toggleAttribute("data-collapsed", phoneLayout.matches && !open && !useMotion);
+      typeof menuPanel.animate === "function";
+    menuPanel.toggleAttribute("data-collapsed", phoneLayout.matches && !open && !useMotion);
     siteNavigation.inert = phoneLayout.matches && !open;
     if (!useMotion) return;
 
-    const heightAfter = open ? siteNavigation.offsetHeight : 0;
-    const resize = playPortfolioAnimation(siteNavigation, [
+    const heightAfter = open ? menuPanel.offsetHeight : 0;
+    const resize = playPortfolioAnimation(menuPanel, [
       { height: `${heightBefore}px`, opacity: opacityBefore, overflow: "clip" },
       { height: `${heightAfter}px`, opacity: open ? 1 : .15, overflow: "clip" },
-    ], { duration: 300, fill: "both" });
+    ], { duration: 300, easing: "cubic-bezier(.4,0,.2,1)", fill: "both" });
     menuAnimation = resize;
     const settle = () => {
       if (menuAnimation !== resize) return;
       menuAnimation = undefined;
-      siteNavigation.toggleAttribute("data-collapsed", !open);
+      menuPanel.toggleAttribute("data-collapsed", !open);
       resize.cancel();
     };
     resize.addEventListener("finish", settle, { once: true });
