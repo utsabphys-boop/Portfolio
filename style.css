@@ -836,6 +836,7 @@ details[open] .card-arrow { transform: rotate(180deg); }
   .section + .section { padding-top: 34px; }
   .section-heading { align-items: start; flex-direction: column; gap: 13px; margin-bottom: 20px; }
   .filters { align-self: start; }
+  [data-year-filter] { touch-action: pan-y pinch-zoom; }
   .research-grid { grid-auto-columns: 100%; }
   .profile-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .research-card summary {
@@ -848,17 +849,6 @@ details[open] .card-arrow { transform: rotate(180deg); }
   .publication-links { grid-column: 2; }
   .publication-links .text-link { align-items: center; min-height: 44px; }
   .conference-entry { grid-template-columns: minmax(0, 1fr); gap: 5px; padding-block: 15px; }
-}
-
-@media (max-width: 680px) and (prefers-reduced-motion: no-preference) {
-  .mobile-menu[aria-expanded="true"] + .nav {
-    animation: mobile-menu-enter 210ms cubic-bezier(.2,.65,.3,1) both;
-  }
-}
-
-@keyframes mobile-menu-enter {
-  from { opacity: .35; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 380px) {

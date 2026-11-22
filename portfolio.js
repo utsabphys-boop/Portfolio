@@ -1,3 +1,4 @@
+const phoneLayout = window.matchMedia("(max-width: 680px)");
 const portfolioMotionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
 const runningPortfolioAnimations = new Set();
 
@@ -158,7 +159,30 @@ for (const section of document.querySelectorAll("[data-year-filter]")) {
   const itemName = section.dataset.yearFilter;
 
   let transition = [];
+  let swipeStart;
   filters.hidden = false;
+
+  section.addEventListener("touchstart", (event) => {
+    swipeStart = phoneLayout.matches && event.touches.length === 1 ? event.touches[0] : undefined;
+  }, { passive: true });
+
+  section.addEventListener("touchcancel", () => { swipeStart = undefined; }, { passive: true });
+
+  section.addEventListener("touchend", (event) => {
+    const start = swipeStart;
+    swipeStart = undefined;
+    if (!start || !phoneLayout.matches || event.touches.length) return;
+
+    const end = [...event.changedTouches].find((touch) => touch.identifier === start.identifier);
+    if (!end) return;
+    const dx = end.clientX - start.clientX;
+    const dy = end.clientY - start.clientY;
+    if (Math.abs(dx) < 45 || Math.abs(dx) <= Math.abs(dy) * 1.4) return;
+
+    if (event.cancelable) event.preventDefault();
+    const current = buttons.findIndex((button) => button.getAttribute("aria-pressed") === "true");
+    buttons[current + (dx < 0 ? 1 : -1)]?.click();
+  }, { passive: false });
 
   filters.addEventListener("click", (event) => {
     const selected = event.target.closest("button[data-filter]");
@@ -217,14 +241,24 @@ for (const section of document.querySelectorAll("[data-year-filter]")) {
   });
 }
 
-const phoneLayout = window.matchMedia("(max-width: 680px)");
 const mobileMenu = document.querySelector(".mobile-menu");
 const siteNavigation = document.getElementById("site-navigation");
 
 if (mobileMenu && siteNavigation) {
+  let menuAnimation;
+
   const setMenuOpen = (open) => {
+    menuAnimation?.cancel();
     mobileMenu.setAttribute("aria-expanded", String(open));
     siteNavigation.toggleAttribute("data-collapsed", phoneLayout.matches && !open);
+
+    if (open && phoneLayout.matches && !portfolioMotionPreference.matches) {
+      const height = siteNavigation.offsetHeight;
+      menuAnimation = playPortfolioAnimation(siteNavigation, [
+        { height: "0px", opacity: .25, overflow: "clip" },
+        { height: `${height}px`, opacity: 1, overflow: "clip" },
+      ], { duration: 300 });
+    }
   };
 
   const updateMenu = () => {
