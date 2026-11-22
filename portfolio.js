@@ -79,6 +79,7 @@ for (const card of document.querySelectorAll("details")) {
 
   const hoverBoundary = card.closest(".research-intro, .profile-panel") ?? card;
   let animation;
+  let arrowRotation;
   let targetOpen;
 
   const isOpeningOrOpen = () => animation ? targetOpen : card.open;
@@ -92,9 +93,17 @@ for (const card of document.querySelectorAll("details")) {
     }
 
     const startHeight = card.getBoundingClientRect().height;
+    let startAngle = card.open ? 180 : 0;
+    if (arrowRotation) {
+      const matrix = new DOMMatrixReadOnly(getComputedStyle(arrow).transform);
+      startAngle = Math.abs(Math.atan2(matrix.b, matrix.a) * 180 / Math.PI);
+    }
+
     const previousAnimation = animation;
     animation = undefined;
     previousAnimation?.cancel();
+    arrowRotation?.cancel();
+    arrowRotation = undefined;
 
     if (portfolioMotionPreference.matches) {
       card.open = targetOpen;
@@ -111,20 +120,28 @@ for (const card of document.querySelectorAll("details")) {
         parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
     }
 
-    const resize = playPortfolioAnimation(card, [
-      { height: `${startHeight}px`, overflow: "hidden" },
-      { height: `${endHeight}px`, overflow: "hidden" },
-    ], {
+    const timing = {
       duration: open ? 320 : 420,
       easing: open ? "cubic-bezier(.2,.65,.3,1)" : "cubic-bezier(.45,0,.25,1)",
       fill: "both",
-    });
+    };
+    const resize = playPortfolioAnimation(card, [
+      { height: `${startHeight}px`, overflow: "hidden" },
+      { height: `${endHeight}px`, overflow: "hidden" },
+    ], timing);
+    const turn = playPortfolioAnimation(arrow, [
+      { transform: `rotate(${startAngle}deg)` },
+      { transform: `rotate(${open ? 180 : 0}deg)` },
+    ], timing);
     animation = resize;
+    arrowRotation = turn;
 
     const settle = () => {
       if (animation !== resize) return;
       animation = undefined;
       card.open = targetOpen;
+      arrowRotation = undefined;
+      turn?.cancel();
       resize.cancel();
     };
     resize.addEventListener("finish", settle, { once: true });

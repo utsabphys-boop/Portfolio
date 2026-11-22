@@ -286,7 +286,7 @@ h2 { margin-top: 9px; font: 400 clamp(42px, 5vw, 70px)/.99 var(--serif); letter-
   border-width: 0 1.5px 1.5px 0;
   transform: translateY(-2px) rotate(45deg);
 }
-details[open] > summary .disclosure-arrow::before { transform: translateY(2px) rotate(225deg); }
+
 .research-overview-copy { display: grid; gap: .65rem; max-width: 60ch; padding-top: .35rem; color: var(--muted); font-size: .9375rem; }
 
 .research-gallery {
@@ -595,10 +595,10 @@ details[open] > summary .disclosure-arrow::before { transform: translateY(2px) r
   font-weight: 700;
 }
 
-.card-arrow { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #fff9; font-size: 16px; line-height: 1; transition: transform .18s; }
+.card-arrow { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #fff9; font-size: 16px; line-height: 1; }
 .open-label, details[open] .closed-label { display: none; }
 details[open] .open-label { display: inline; }
-details[open] .card-arrow { transform: rotate(180deg); }
+details[open] > summary :is(.card-arrow, .disclosure-arrow) { transform: rotate(180deg); }
 .project-detail { margin: 0 23px 23px; }
 .project-detail .text-link { margin-top: 11px; }
 
@@ -891,5 +891,6 @@ details[open] .card-arrow { transform: rotate(180deg); }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: .01ms !important; }
+  details > summary :is(.card-arrow, .disclosure-arrow) { transition-duration: 0s !important; }
   .button:hover { transform: none; }
 }
