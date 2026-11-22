@@ -779,13 +779,23 @@ details[open] .card-arrow { transform: rotate(180deg); }
   .mobile-menu[aria-expanded="true"] { background: var(--lavender); }
   .header-inner .nav {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     flex-basis: 100%;
-    gap: 2px 8px;
-    padding-top: 8px;
-    border-top: 1px solid var(--line);
+    gap: 0;
+    padding: 4px 8px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
   }
   .header-inner .nav[data-collapsed] { display: none; }
+  .header-inner .nav a + a { border-top: 1px solid var(--line); }
+  .header-inner .nav .nav-contact {
+    padding: 6px 9px;
+    border-inline: 0;
+    border-bottom: 0;
+    border-radius: 0;
+    background: transparent;
+  }
   .header-inner .nav a {
     display: flex;
     align-items: center;
@@ -797,8 +807,8 @@ details[open] .card-arrow { transform: rotate(180deg); }
   .hero h1 { font-size: clamp(3.4rem, 11vw, 5rem); }
   .hero-bio { margin-top: 1rem; }
   .hero-actions { margin-top: 1.15rem; }
-  .hero-portrait { width: min(100%, 14rem); aspect-ratio: 4 / 3; }
-  .hero-portrait img { object-position: 50% 15%; transform: none; }
+  .hero-portrait { width: min(100%, 13.5rem); aspect-ratio: 1; }
+  .hero-portrait img { object-position: 50% 18%; transform: none; }
   .hero-actions .button, .cv-actions .button, .statement-panel .button { min-height: 44px; }
   .research-gallery { --figure-height: clamp(10.5rem, 57vw, 20rem); }
   .gallery-media { padding: .5rem .35rem; }
@@ -838,6 +848,17 @@ details[open] .card-arrow { transform: rotate(180deg); }
   .publication-links { grid-column: 2; }
   .publication-links .text-link { align-items: center; min-height: 44px; }
   .conference-entry { grid-template-columns: minmax(0, 1fr); gap: 5px; padding-block: 15px; }
+}
+
+@media (max-width: 680px) and (prefers-reduced-motion: no-preference) {
+  .mobile-menu[aria-expanded="true"] + .nav {
+    animation: mobile-menu-enter 210ms cubic-bezier(.2,.65,.3,1) both;
+  }
+}
+
+@keyframes mobile-menu-enter {
+  from { opacity: .35; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 380px) {
