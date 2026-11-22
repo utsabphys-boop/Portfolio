@@ -808,7 +808,19 @@ details[open] .card-arrow { transform: rotate(180deg); }
   .hero { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; margin-top: 11px; padding: 1.35rem; }
   .hero h1 { font-size: clamp(3.4rem, 11vw, 5rem); }
   .hero-bio { margin-top: 1rem; }
-  .hero-actions { margin-top: 1.15rem; }
+  .hero-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    gap: 8px;
+    margin-top: 1.15rem;
+  }
+  .hero-actions .button {
+    justify-content: center;
+    gap: 5px;
+    padding-inline: 6px;
+    font-size: clamp(.8125rem, 3.5vw, .875rem);
+    text-align: center;
+  }
   .hero-portrait { width: min(100%, 13.5rem); aspect-ratio: 1; }
   .hero-portrait img { object-position: 50% 18%; transform: none; }
   .hero-actions .button, .cv-actions .button, .statement-panel .button { min-height: 44px; }
