@@ -486,3 +486,92 @@ if (researchCards && researchScrollControls) {
   researchCards.addEventListener("scroll", updateArrows, { passive: true });
   window.addEventListener("resize", updateArrows);
 }
+
+const preprintSection = document.getElementById("preprints");
+if (preprintSection) {
+  const preprintList = preprintSection.querySelector("[data-preprint-results]");
+  const publishedArxivIds = new Set(
+    [...document.querySelectorAll('#publications a[href^="https://arxiv.org/abs/"]')]
+      .map((link) => link.pathname.slice("/abs/".length).replace(/v\d+$/, "")),
+  );
+  const arxivId = (record) => record.arxiv_eprints?.[0]?.value?.replace(/v\d+$/, "");
+  const isPublished = (record) => record.publication_info?.some(
+    (entry) => entry.journal_title || entry.journal_record ||
+      (entry.material === "publication" && entry.pubinfo_freetext),
+  );
+  let request;
+
+  const loadPreprints = async () => {
+    const endpoint = new URL("https://inspirehep.net/api/literature");
+    const pageSize = 100;
+    endpoint.search = new URLSearchParams({
+      q: "authors.recid:2896573",
+      size: String(pageSize),
+      sort: "mostrecent",
+      fields: "titles,arxiv_eprints,publication_info",
+    });
+
+    const records = [];
+    let total;
+    for (let page = 1; total === undefined || records.length < total; page++) {
+      endpoint.searchParams.set("page", String(page));
+      const response = await fetch(endpoint, { cache: "no-cache" });
+      if (!response.ok) throw new Error("Unable to load INSPIRE literature records");
+      const { hits } = await response.json();
+      total = hits.total;
+      if (!hits.hits.length) break;
+      records.push(...hits.hits.map((result) => result.metadata));
+    }
+
+    const seen = new Set(publishedArxivIds);
+    for (const record of records) {
+      if (isPublished(record)) seen.add(arxivId(record));
+    }
+
+    const rows = document.createDocumentFragment();
+    for (const record of records) {
+      const id = arxivId(record);
+      const title = record.titles?.[0]?.title;
+      if (!id || !title || seen.has(id) ||
+          !/^(?:\d{4}\.\d{4,5}|[a-z-]+(?:\.[A-Z]{2})?\/\d{7})$/.test(id)) continue;
+      seen.add(id);
+
+      const row = document.createElement("article");
+      row.className = "publication";
+      const type = document.createElement("span");
+      type.className = "publication-type";
+      type.textContent = "arXiv";
+      const heading = document.createElement("h3");
+      heading.textContent = title;
+      const links = document.createElement("div");
+      links.className = "publication-links";
+      const link = document.createElement("a");
+      link.className = "text-link";
+      link.href = `https://arxiv.org/abs/${id}`;
+      link.textContent = `arXiv:${id}`;
+      links.append(link);
+      row.append(type, heading, links);
+      rows.append(row);
+    }
+
+    preprintList.replaceChildren(rows);
+  };
+
+  const updatePreprintVisibility = async () => {
+    if (phoneLayout.matches) {
+      preprintSection.hidden = true;
+      return;
+    }
+    request ??= loadPreprints();
+    try {
+      await request;
+      preprintSection.hidden = phoneLayout.matches || !preprintList.childElementCount;
+    } catch {
+      request = undefined;
+      preprintSection.hidden = true;
+    }
+  };
+
+  phoneLayout.addEventListener("change", updatePreprintVisibility);
+  updatePreprintVisibility();
+}
