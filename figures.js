@@ -10,7 +10,7 @@ const status = gallery.querySelector('[role="status"]');
 const reducedMotion = portfolioMotionPreference;
 
 let active = 0;
-let playing = !reducedMotion.matches;
+let playing = !reducedMotion.matches && !phoneLayout.matches;
 let hovering = false;
 let visible = !("IntersectionObserver" in window);
 let timer;

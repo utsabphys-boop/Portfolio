@@ -137,11 +137,11 @@ for (const card of document.querySelectorAll("details")) {
   });
 
   arrow.addEventListener("pointerenter", (event) => {
-    if (event.pointerType === "mouse") setOpen(true);
+    if (event.pointerType === "mouse" && !phoneLayout.matches) setOpen(true);
   });
 
   hoverBoundary.addEventListener("pointerleave", (event) => {
-    if (event.pointerType !== "mouse") return;
+    if (event.pointerType !== "mouse" || phoneLayout.matches) return;
     const focused = document.activeElement;
     if (card.contains(focused) && !summary.contains(focused)) return;
     setOpen(false);
@@ -217,6 +217,45 @@ for (const section of document.querySelectorAll("[data-year-filter]")) {
   });
 }
 
+const phoneLayout = window.matchMedia("(max-width: 680px)");
+const mobileMenu = document.querySelector(".mobile-menu");
+const siteNavigation = document.getElementById("site-navigation");
+
+if (mobileMenu && siteNavigation) {
+  const setMenuOpen = (open) => {
+    mobileMenu.setAttribute("aria-expanded", String(open));
+    siteNavigation.toggleAttribute("data-collapsed", phoneLayout.matches && !open);
+  };
+
+  const updateMenu = () => {
+    if (phoneLayout.matches && siteNavigation.contains(document.activeElement)) mobileMenu.focus();
+    setMenuOpen(false);
+  };
+
+  mobileMenu.hidden = false;
+  updateMenu();
+  phoneLayout.addEventListener("change", updateMenu);
+  mobileMenu.addEventListener("click", () => setMenuOpen(mobileMenu.getAttribute("aria-expanded") !== "true"));
+
+  siteNavigation.addEventListener("click", (event) => {
+    const link = event.target.closest('a[href^="#"]');
+    if (!phoneLayout.matches || !link) return;
+
+    const destination = document.getElementById(link.hash.slice(1));
+    if (destination) {
+      destination.tabIndex = -1;
+      destination.focus({ preventScroll: true });
+    }
+    setMenuOpen(false);
+  });
+
+  mobileMenu.parentElement.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || mobileMenu.getAttribute("aria-expanded") !== "true") return;
+    setMenuOpen(false);
+    mobileMenu.focus();
+  });
+}
+
 const researchCards = document.getElementById("research-cards");
 const researchScrollControls = document.querySelector(".research-scroll-controls");
 
@@ -225,6 +264,16 @@ if (researchCards && researchScrollControls) {
   const lastArrow = researchScrollControls.querySelector('[data-research-scroll="end"]');
 
   const researchViewport = researchCards.parentElement;
+  const projects = [...researchCards.querySelectorAll(".research-card")];
+  const position = researchScrollControls.querySelector(".research-card-position");
+  const cardStep = () => projects[1].offsetLeft - projects[0].offsetLeft;
+  const currentCard = () => Math.round(researchCards.scrollLeft / cardStep());
+
+  const updateCarouselLayout = () => {
+    position.hidden = !phoneLayout.matches;
+    firstArrow.setAttribute("aria-label", phoneLayout.matches ? "Previous research card" : "Show first research projects");
+    lastArrow.setAttribute("aria-label", phoneLayout.matches ? "Next research card" : "Show Future Directions");
+  };
   const updateArrows = () => {
     const end = researchCards.scrollWidth - researchCards.clientWidth;
     const canScrollLeft = researchCards.scrollLeft > 1;
@@ -233,26 +282,33 @@ if (researchCards && researchScrollControls) {
     lastArrow.setAttribute("aria-disabled", String(!canScrollRight));
     researchViewport.classList.toggle("can-scroll-left", canScrollLeft);
     researchViewport.classList.toggle("can-scroll-right", canScrollRight);
+    if (phoneLayout.matches) position.textContent = `${currentCard() + 1} / ${projects.length}`;
   };
 
   for (const arrow of [firstArrow, lastArrow]) {
     const scroll = () => {
       if (arrow.getAttribute("aria-disabled") === "true") return;
 
+      const direction = arrow === lastArrow ? 1 : -1;
+      const left = phoneLayout.matches
+        ? (currentCard() + direction) * cardStep()
+        : direction === 1 ? researchCards.scrollWidth - researchCards.clientWidth : 0;
       researchCards.scrollTo({
-        left: arrow === lastArrow ? researchCards.scrollWidth - researchCards.clientWidth : 0,
+        left,
         behavior: portfolioMotionPreference.matches ? "instant" : "smooth",
       });
     };
 
     arrow.addEventListener("click", scroll);
     arrow.addEventListener("pointerenter", (event) => {
-      if (event.pointerType === "mouse") scroll();
+      if (event.pointerType === "mouse" && !phoneLayout.matches) scroll();
     });
   }
 
   researchScrollControls.hidden = false;
+  updateCarouselLayout();
   updateArrows();
+  phoneLayout.addEventListener("change", updateCarouselLayout);
   researchCards.addEventListener("scroll", updateArrows, { passive: true });
   window.addEventListener("resize", updateArrows);
 }

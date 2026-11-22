@@ -93,6 +93,7 @@ h1, h2, h3, p, figure { margin: 0; }
 .brand-mark::after, .card-orbit::after { transform: rotate(39deg); opacity: .72; }
 .nav { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 7px clamp(12px, 2.05vw, 30px); font-size: 14px; font-weight: 550; color: var(--muted); }
 .nav a { white-space: nowrap; }
+.mobile-menu, .research-card-position { display: none; }
 .nav a:hover, .footer-inner a:hover { color: var(--accent); }
 .nav .nav-contact {
   padding: 8px 15px;
@@ -762,11 +763,64 @@ details[open] .card-arrow { transform: rotate(180deg); }
   .header-inner { flex-wrap: wrap; gap: 10px 21px; min-height: 0; padding-block: 13px; }
   .nav { justify-content: flex-start; gap: 7px 12px; font-size: 13px; }
   .nav .nav-contact { padding: 4px 10px; }
+
+  .mobile-menu {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--accent-dark);
+    font: 650 .875rem var(--sans);
+    cursor: pointer;
+  }
+  .mobile-menu[aria-expanded="true"] { background: var(--lavender); }
+  .header-inner .nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    flex-basis: 100%;
+    gap: 2px 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+  }
+  .header-inner .nav[data-collapsed] { display: none; }
+  .header-inner .nav a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 6px 9px;
+    white-space: normal;
+  }
   .hero { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; margin-top: 11px; padding: 1.35rem; }
   .hero h1 { font-size: clamp(3.4rem, 11vw, 5rem); }
   .hero-bio { margin-top: 1rem; }
   .hero-actions { margin-top: 1.15rem; }
-  .hero-portrait { width: min(100%, 17.5rem); }
+  .hero-portrait { width: min(100%, 14rem); aspect-ratio: 4 / 3; }
+  .hero-portrait img { object-position: 50% 15%; transform: none; }
+  .hero-actions .button, .cv-actions .button, .statement-panel .button { min-height: 44px; }
+  .research-gallery { --figure-height: clamp(10.5rem, 57vw, 20rem); }
+  .gallery-media { padding: .5rem .35rem; }
+  .gallery-navigation {
+    position: static;
+    justify-content: end;
+    gap: 8px;
+    padding: 0 .9rem .75rem;
+  }
+  .gallery-arrow { opacity: 1; pointer-events: auto; }
+  .gallery-caption { gap: .25rem .75rem; }
+  .gallery-caption .text-link { align-items: center; min-height: 44px; }
+  .research-projects-header { justify-content: center; }
+  .research-scroll-controls { align-items: center; }
+  .research-card-position {
+    display: block;
+    min-width: 4em;
+    color: var(--muted);
+    font-size: .85rem;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
   .statement-panel { flex-direction: column; align-items: flex-start; padding-block: 18px; }
   .section { padding-bottom: 39px; }
   .section + .section { padding-top: 34px; }
@@ -782,6 +836,7 @@ details[open] .card-arrow { transform: rotate(180deg); }
   .publication-list, .conference-list { padding-inline: 14px; border-radius: 19px; }
   .publication { grid-template-columns: 41px minmax(0, 1fr); gap: 7px 9px; padding-block: 15px; }
   .publication-links { grid-column: 2; }
+  .publication-links .text-link { align-items: center; min-height: 44px; }
   .conference-entry { grid-template-columns: minmax(0, 1fr); gap: 5px; padding-block: 15px; }
 }
 
