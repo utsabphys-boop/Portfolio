@@ -634,6 +634,8 @@ details[open] > summary :is(.card-arrow, .disclosure-arrow) { transform: rotate(
 .project-detail .text-link { margin-top: 11px; }
 
 .filters {
+  position: relative;
+  isolation: isolate;
   display: flex;
   gap: 4px;
   align-self: end;
@@ -649,7 +651,23 @@ details[open] > summary :is(.card-arrow, .disclosure-arrow) { transform: rotate(
 }
 
 .filters button:hover { color: var(--accent-dark); }
-.filters button[aria-pressed="true"] { background: var(--accent); color: white; }
+.filter-all-mobile { display: none; }
+.filters::before {
+  position: absolute;
+  z-index: -1;
+  inset-block: 4px;
+  left: 0;
+  width: var(--year-pill-width, 0px);
+  transform: translateX(var(--year-pill-x, 0px));
+  border-radius: 99px;
+  background: #dbe1fa;
+  box-shadow: inset 0 0 0 1px #b3bfea;
+  pointer-events: none;
+  transition: transform 260ms cubic-bezier(.2,.65,.3,1), width 260ms cubic-bezier(.2,.65,.3,1);
+  content: "";
+}
+.filters[data-dragging]::before { transition: none; }
+.filters button[aria-pressed] { background: transparent; color: var(--accent-dark); transition: none; }
 [data-year-viewport] { position: relative; }
 .year-results-outgoing { position: absolute; inset: 0 0 auto; pointer-events: none; }
 .publication-list, .conference-list { padding: 2px 24px; border: 1px solid var(--line); border-radius: 24px; background: var(--surface); box-shadow: 0 12px 27px #36527706; }
@@ -880,23 +898,9 @@ details[open] > summary :is(.card-arrow, .disclosure-arrow) { transform: rotate(
   .section { padding-bottom: 39px; }
   .section + .section { padding-top: 34px; }
   .section-heading { align-items: start; flex-direction: column; gap: 13px; margin-bottom: 20px; }
-  .filters { position: relative; isolation: isolate; align-self: start; }
-  .filters::before {
-    position: absolute;
-    z-index: -1;
-    inset-block: 4px;
-    left: 0;
-    width: var(--year-pill-width, 0px);
-    transform: translateX(var(--year-pill-x, 0px));
-    border-radius: 99px;
-    background: #dbe1fa;
-    box-shadow: inset 0 0 0 1px #b3bfea;
-    pointer-events: none;
-    transition: transform 260ms cubic-bezier(.2,.65,.3,1), width 260ms cubic-bezier(.2,.65,.3,1);
-    content: "";
-  }
-  .filters[data-dragging]::before { transition: none; }
-  .filters button[aria-pressed] { background: transparent; color: var(--accent-dark); transition: none; }
+  .filters { align-self: start; }
+  .filter-all-desktop { display: none; }
+  .filter-all-mobile { display: inline; }
   [data-year-filter] { touch-action: pan-y pinch-zoom; }
   [data-year-viewport] { overflow: clip; overflow-clip-margin: 4px; }
   .research-grid { grid-auto-columns: 100%; }

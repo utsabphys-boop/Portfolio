@@ -184,8 +184,6 @@ for (const section of document.querySelectorAll("[data-year-filter]")) {
 
   const selectedIndex = () => buttons.findIndex((button) => button.getAttribute("aria-pressed") === "true");
   const positionYearPill = (next, progress = 0) => {
-    if (!phoneLayout.matches) return;
-
     const current = buttons[selectedIndex()];
     next ??= current;
     const left = current.offsetLeft + (next.offsetLeft - current.offsetLeft) * progress;
@@ -196,6 +194,7 @@ for (const section of document.querySelectorAll("[data-year-filter]")) {
 
   positionYearPill();
   window.addEventListener("resize", () => positionYearPill());
+  document.fonts?.ready.then(() => { if (!drag?.direction) positionYearPill(); });
   const canAnimate = () => !portfolioMotionPreference.matches && typeof results.animate === "function";
   const stopTransition = () => {
     for (const animation of transition) animation.cancel();
