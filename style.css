@@ -837,6 +837,7 @@ details[open] .card-arrow { transform: rotate(180deg); }
   .section-heading { align-items: start; flex-direction: column; gap: 13px; margin-bottom: 20px; }
   .filters { align-self: start; }
   [data-year-filter] { touch-action: pan-y pinch-zoom; }
+  [data-year-viewport] { overflow: clip; overflow-clip-margin: 4px; }
   .research-grid { grid-auto-columns: 100%; }
   .profile-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .research-card summary {

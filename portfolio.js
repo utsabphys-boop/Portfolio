@@ -159,41 +159,52 @@ for (const section of document.querySelectorAll("[data-year-filter]")) {
   const itemName = section.dataset.yearFilter;
 
   let transition = [];
-  let swipeStart;
+  let drag;
   filters.hidden = false;
 
-  section.addEventListener("touchstart", (event) => {
-    swipeStart = phoneLayout.matches && event.touches.length === 1 ? event.touches[0] : undefined;
-  }, { passive: true });
-
-  section.addEventListener("touchcancel", () => { swipeStart = undefined; }, { passive: true });
-
-  section.addEventListener("touchend", (event) => {
-    const start = swipeStart;
-    swipeStart = undefined;
-    if (!start || !phoneLayout.matches || event.touches.length) return;
-
-    const end = [...event.changedTouches].find((touch) => touch.identifier === start.identifier);
-    if (!end) return;
-    const dx = end.clientX - start.clientX;
-    const dy = end.clientY - start.clientY;
-    if (Math.abs(dx) < 45 || Math.abs(dx) <= Math.abs(dy) * 1.4) return;
-
-    if (event.cancelable) event.preventDefault();
-    const current = buttons.findIndex((button) => button.getAttribute("aria-pressed") === "true");
-    buttons[current + (dx < 0 ? 1 : -1)]?.click();
-  }, { passive: false });
-
-  filters.addEventListener("click", (event) => {
-    const selected = event.target.closest("button[data-filter]");
-    if (!selected || selected.getAttribute("aria-pressed") === "true") return;
-
-    const animate = !portfolioMotionPreference.matches && typeof results.animate === "function";
-    const heightBefore = animate ? viewport.getBoundingClientRect().height : 0;
+  const selectedIndex = () => buttons.findIndex((button) => button.getAttribute("aria-pressed") === "true");
+  const canAnimate = () => !portfolioMotionPreference.matches && typeof results.animate === "function";
+  const stopTransition = () => {
     for (const animation of transition) animation.cancel();
     transition = [];
+  };
 
-    const previous = buttons.findIndex((button) => button.getAttribute("aria-pressed") === "true");
+  const filterEntries = (list, year) => {
+    let count = 0;
+    for (const entry of list) {
+      entry.hidden = year !== "all" && entry.dataset.year !== year;
+      if (!entry.hidden) count++;
+    }
+    return count;
+  };
+
+  const placeCopy = (copy) => {
+    copy.removeAttribute("data-year-results");
+    copy.setAttribute("aria-hidden", "true");
+    copy.inert = true;
+    copy.classList.add("year-results-outgoing");
+    viewport.append(copy);
+  };
+
+  const slideFrom = (element, start, end, options) => playPortfolioAnimation(element, [
+    { transform: `translateX(${start})` },
+    { transform: `translateX(${end})` },
+  ], options);
+
+  const removeAfter = (copy, animation) => {
+    const remove = () => copy.remove();
+    animation.addEventListener("finish", remove, { once: true });
+    animation.addEventListener("cancel", remove, { once: true });
+  };
+
+  const selectYear = (selected, offset = 0) => {
+    if (!selected || selected.getAttribute("aria-pressed") === "true") return;
+
+    const animate = canAnimate();
+    const heightBefore = animate ? viewport.getBoundingClientRect().height : 0;
+    stopTransition();
+
+    const previous = selectedIndex();
     const direction = buttons.indexOf(selected) > previous ? 1 : -1;
     const outgoing = animate ? results.cloneNode(true) : null;
 
@@ -201,43 +212,117 @@ for (const section of document.querySelectorAll("[data-year-filter]")) {
       button.setAttribute("aria-pressed", String(button === selected));
     }
 
-    const year = selected.dataset.filter;
-    const visible = [];
-    for (const entry of entries) {
-      entry.hidden = year !== "all" && entry.dataset.year !== year;
-      if (!entry.hidden) visible.push(entry);
-    }
-    const noun = visible.length === 1 ? itemName : `${itemName}s`;
-    status.textContent = `Showing ${visible.length} ${noun}.`;
+    const count = filterEntries(entries, selected.dataset.filter);
+    const noun = count === 1 ? itemName : `${itemName}s`;
+    status.textContent = `Showing ${count} ${noun}.`;
 
     if (!outgoing) return;
 
     const heightAfter = viewport.getBoundingClientRect().height;
-    outgoing.removeAttribute("data-year-results");
-    outgoing.setAttribute("aria-hidden", "true");
-    outgoing.inert = true;
-    outgoing.classList.add("year-results-outgoing");
-    viewport.append(outgoing);
-
-    const options = { duration: 360 };
-    const leave = playPortfolioAnimation(outgoing, [
-      { transform: "translateX(0)" },
-      { transform: `translateX(${-direction * 100}%)` },
-    ], options);
-    const removeOutgoing = () => outgoing.remove();
-    leave.addEventListener("finish", removeOutgoing, { once: true });
-    leave.addEventListener("cancel", removeOutgoing, { once: true });
+    placeCopy(outgoing);
+    const options = { duration: offset ? 260 : 360 };
+    const leave = slideFrom(outgoing, `${offset}px`, `${-direction * 100}%`, options);
+    removeAfter(outgoing, leave);
     transition = [
       leave,
-      playPortfolioAnimation(results, [
-        { transform: `translateX(${direction * 100}%)` },
-        { transform: "translateX(0)" },
-      ], options),
+      slideFrom(results, `calc(${direction * 100}% + ${offset}px)`, "0px", options),
       playPortfolioAnimation(viewport, [
         { height: `${heightBefore}px`, overflow: "hidden" },
         { height: `${heightAfter}px`, overflow: "hidden" },
       ], options),
     ];
+  };
+
+  const finishDrag = (commit) => {
+    const current = drag;
+    drag = undefined;
+    if (!current?.direction) return;
+
+    const { offset, preview, direction, next } = current;
+    results.style.transform = "";
+    if (!offset) {
+      preview?.remove();
+      return;
+    }
+    if (commit && next) {
+      preview?.remove();
+      selectYear(next, offset);
+      return;
+    }
+
+    if (canAnimate()) {
+      const options = { duration: 200 };
+      transition = [slideFrom(results, `${offset}px`, "0px", options)];
+      if (preview) {
+        const exit = slideFrom(preview, `calc(${direction * 100}% + ${offset}px)`, `${direction * 100}%`, options);
+        removeAfter(preview, exit);
+        transition.push(exit);
+      }
+    } else {
+      preview?.remove();
+    }
+  };
+
+  section.addEventListener("touchstart", (event) => {
+    if (drag) finishDrag(false);
+    if (phoneLayout.matches && event.touches.length === 1) {
+      const touch = event.touches[0];
+      drag = { id: touch.identifier, x: touch.clientX, y: touch.clientY, offset: 0 };
+    }
+  }, { passive: true });
+
+  section.addEventListener("touchmove", (event) => {
+    if (!drag || event.touches.length !== 1) return;
+    const touch = event.touches[0];
+    if (touch.identifier !== drag.id) return;
+    const dx = touch.clientX - drag.x;
+    const dy = touch.clientY - drag.y;
+
+    if (!drag.direction) {
+      if (Math.abs(dy) >= 10 && Math.abs(dx) <= Math.abs(dy) * 1.4) {
+        drag = undefined;
+        return;
+      }
+      if (Math.abs(dx) < 10) return;
+      stopTransition();
+    }
+
+    const direction = dx < 0 ? 1 : -1;
+    if (direction !== drag.direction) {
+      drag.preview?.remove();
+      drag.preview = undefined;
+      drag.direction = direction;
+      drag.next = buttons[selectedIndex() + direction];
+      if (drag.next && canAnimate()) {
+        drag.preview = results.cloneNode(true);
+        filterEntries(drag.preview.querySelectorAll("[data-year]"), drag.next.dataset.filter);
+        placeCopy(drag.preview);
+      }
+    }
+
+    const width = viewport.clientWidth;
+    drag.offset = Math.max(-width, Math.min(width, drag.next ? dx : dx * .22));
+    if (canAnimate()) {
+      results.style.transform = `translateX(${drag.offset}px)`;
+      if (drag.preview) drag.preview.style.transform = `translateX(calc(${direction * 100}% + ${drag.offset}px))`;
+    }
+  }, { passive: true });
+
+  section.addEventListener("touchend", (event) => {
+    if (!drag?.direction || event.touches.length) {
+      finishDrag(false);
+      return;
+    }
+    if (event.cancelable) event.preventDefault();
+    finishDrag(Math.abs(drag.offset) >= Math.max(45, viewport.clientWidth * .16));
+  }, { passive: false });
+
+  section.addEventListener("touchcancel", () => finishDrag(false), { passive: true });
+  phoneLayout.addEventListener("change", () => finishDrag(false));
+
+  filters.addEventListener("click", (event) => {
+    finishDrag(false);
+    selectYear(event.target.closest("button[data-filter]"));
   });
 }
 
@@ -247,18 +332,34 @@ const siteNavigation = document.getElementById("site-navigation");
 if (mobileMenu && siteNavigation) {
   let menuAnimation;
 
-  const setMenuOpen = (open) => {
-    menuAnimation?.cancel();
-    mobileMenu.setAttribute("aria-expanded", String(open));
-    siteNavigation.toggleAttribute("data-collapsed", phoneLayout.matches && !open);
+  const setMenuOpen = (open, animate = false) => {
+    const heightBefore = siteNavigation.getBoundingClientRect().height;
+    const opacityBefore = heightBefore ? getComputedStyle(siteNavigation).opacity : ".25";
+    const previous = menuAnimation;
+    menuAnimation = undefined;
+    previous?.cancel();
 
-    if (open && phoneLayout.matches && !portfolioMotionPreference.matches) {
-      const height = siteNavigation.offsetHeight;
-      menuAnimation = playPortfolioAnimation(siteNavigation, [
-        { height: "0px", opacity: .25, overflow: "clip" },
-        { height: `${height}px`, opacity: 1, overflow: "clip" },
-      ], { duration: 300 });
-    }
+    mobileMenu.setAttribute("aria-expanded", String(open));
+    const useMotion = animate && phoneLayout.matches && !portfolioMotionPreference.matches &&
+      typeof siteNavigation.animate === "function";
+    siteNavigation.toggleAttribute("data-collapsed", phoneLayout.matches && !open && !useMotion);
+    siteNavigation.inert = phoneLayout.matches && !open;
+    if (!useMotion) return;
+
+    const heightAfter = open ? siteNavigation.offsetHeight : 0;
+    const resize = playPortfolioAnimation(siteNavigation, [
+      { height: `${heightBefore}px`, opacity: opacityBefore, overflow: "clip" },
+      { height: `${heightAfter}px`, opacity: open ? 1 : .15, overflow: "clip" },
+    ], { duration: 300, fill: "both" });
+    menuAnimation = resize;
+    const settle = () => {
+      if (menuAnimation !== resize) return;
+      menuAnimation = undefined;
+      siteNavigation.toggleAttribute("data-collapsed", !open);
+      resize.cancel();
+    };
+    resize.addEventListener("finish", settle, { once: true });
+    resize.addEventListener("cancel", settle, { once: true });
   };
 
   const updateMenu = () => {
@@ -269,7 +370,7 @@ if (mobileMenu && siteNavigation) {
   mobileMenu.hidden = false;
   updateMenu();
   phoneLayout.addEventListener("change", updateMenu);
-  mobileMenu.addEventListener("click", () => setMenuOpen(mobileMenu.getAttribute("aria-expanded") !== "true"));
+  mobileMenu.addEventListener("click", () => setMenuOpen(mobileMenu.getAttribute("aria-expanded") !== "true", true));
 
   siteNavigation.addEventListener("click", (event) => {
     const link = event.target.closest('a[href^="#"]');
