@@ -172,7 +172,6 @@ for (const card of document.querySelectorAll("details")) {
 for (const section of document.querySelectorAll("[data-year-filter]")) {
   const filters = section.querySelector(".filters");
   const buttons = [...filters.querySelectorAll("button[data-filter]")];
-  const entries = section.querySelectorAll("[data-year]");
   const results = section.querySelector("[data-year-results]");
   const viewport = results.parentElement;
   const status = section.querySelector('[role="status"]');
@@ -187,9 +186,13 @@ for (const section of document.querySelectorAll("[data-year-filter]")) {
     const current = buttons[selectedIndex()];
     next ??= current;
     const left = current.offsetLeft + (next.offsetLeft - current.offsetLeft) * progress;
+    const top = current.offsetTop + (next.offsetTop - current.offsetTop) * progress;
     const width = current.offsetWidth + (next.offsetWidth - current.offsetWidth) * progress;
+    const height = current.offsetHeight + (next.offsetHeight - current.offsetHeight) * progress;
     filters.style.setProperty("--year-pill-x", `${left}px`);
+    filters.style.setProperty("--year-pill-y", `${top}px`);
     filters.style.setProperty("--year-pill-width", `${width}px`);
+    filters.style.setProperty("--year-pill-height", `${height}px`);
   };
 
   positionYearPill();
@@ -245,7 +248,7 @@ for (const section of document.querySelectorAll("[data-year-filter]")) {
     }
     positionYearPill();
 
-    const count = filterEntries(entries, selected.dataset.filter);
+    const count = filterEntries(results.querySelectorAll("[data-year]"), selected.dataset.filter);
     const noun = count === 1 ? itemName : `${itemName}s`;
     status.textContent = `Showing ${count} ${noun}.`;
 
@@ -361,6 +364,16 @@ for (const section of document.querySelectorAll("[data-year-filter]")) {
   filters.addEventListener("click", (event) => {
     finishDrag(false);
     selectYear(event.target.closest("button[data-filter]"));
+  });
+
+  section.addEventListener("literature-updated", () => {
+    finishDrag(false);
+    stopTransition();
+    buttons.splice(0, buttons.length, ...filters.querySelectorAll("button[data-filter]"));
+    const selected = buttons[selectedIndex()] ?? buttons[0];
+    selected.setAttribute("aria-pressed", "true");
+    filterEntries(results.querySelectorAll("[data-year]"), selected.dataset.filter);
+    positionYearPill();
   });
 }
 
@@ -490,7 +503,15 @@ if (researchCards && researchScrollControls) {
 const preprintSection = document.getElementById("preprints");
 const conferencePaperSection = document.getElementById("conference-papers");
 
-if (preprintSection && conferencePaperSection) {
+const journalSection = document.getElementById("publications");
+
+if (preprintSection && conferencePaperSection && journalSection) {
+  const journalList = journalSection.querySelector("[data-year-results]");
+  const journalFilters = journalSection.querySelector(".filters");
+  const publishedDois = new Set(
+    [...journalList.querySelectorAll('a[href^="https://doi.org/"]')]
+      .map((link) => decodeURIComponent(link.pathname.slice(1)).toLowerCase()),
+  );
   const publishedArxivIds = new Set(
     [...document.querySelectorAll('#publications a[href^="https://arxiv.org/abs/"]')]
       .map((link) => link.pathname.slice("/abs/".length).replace(/v\d+$/, "")),
@@ -512,7 +533,7 @@ if (preprintSection && conferencePaperSection) {
       q: "authors.recid:2896573",
       size: "100",
       sort: "mostrecent",
-      fields: "titles,arxiv_eprints,publication_info,document_type,dois",
+      fields: "titles,arxiv_eprints,publication_info,document_type,dois,earliest_date",
     });
 
     const records = [];
@@ -529,38 +550,79 @@ if (preprintSection && conferencePaperSection) {
     return records;
   };
 
-  const renderPapers = (section, selector, papers) => {
-    const rows = document.createDocumentFragment();
-    for (const { title, label, href, linkText } of papers) {
-      const row = document.createElement("article");
-      row.className = "publication";
-      const type = document.createElement("span");
-      type.className = "publication-type";
-      type.textContent = label;
-      const heading = document.createElement("h3");
-      heading.textContent = title;
-      const links = document.createElement("div");
-      links.className = "publication-links";
-      const link = document.createElement("a");
-      link.className = "text-link";
-      link.href = href;
-      link.textContent = linkText;
-      link.setAttribute("aria-label", `${linkText}: ${title}`);
-      links.append(link);
-      row.append(type, heading, links);
-      rows.append(row);
+  const createPaperRow = ({ title, label, href, linkText, citation }) => {
+    const row = document.createElement("article");
+    row.className = "publication";
+    const type = document.createElement("span");
+    type.className = "publication-type";
+    type.textContent = label;
+    const heading = document.createElement("h3");
+    heading.textContent = title;
+    const links = document.createElement("div");
+    links.className = "publication-links";
+    const link = document.createElement("a");
+    link.className = "text-link";
+    link.href = href;
+    link.textContent = linkText;
+    link.setAttribute("aria-label", `${linkText}: ${title}`);
+    links.append(link);
+    const description = document.createElement("div");
+    description.append(heading);
+    if (citation) {
+      const detail = document.createElement("p");
+      detail.textContent = citation;
+      description.append(detail);
     }
+    row.append(type, description, links);
+    return row;
+  };
 
-    section.querySelector(selector).replaceChildren(rows);
+  const renderPapers = (section, selector, papers) => {
+    section.querySelector(selector).replaceChildren(...papers.map(createPaperRow));
     section.hidden = !papers.length;
   };
 
+  const renderJournalPapers = (papers) => {
+    journalList.querySelectorAll("[data-inspire-journal]").forEach((row) => row.remove());
+    for (const paper of papers.slice().reverse()) {
+      const row = createPaperRow(paper);
+      row.dataset.year = paper.year;
+      row.dataset.inspireJournal = "";
+      const firstOlder = [...journalList.children].find((item) => item.dataset.year <= paper.year);
+      journalList.insertBefore(row, firstOlder ?? null);
+    }
+
+    const years = [...new Set([...journalList.children].map((row) => row.dataset.year).filter(Boolean))]
+      .sort((a, b) => Number(b) - Number(a));
+    for (const button of journalFilters.querySelectorAll("button[data-inspire-year]")) {
+      if (!years.includes(button.dataset.filter)) button.remove();
+    }
+    for (const year of years) {
+      if (journalFilters.querySelector(`[data-filter="${year}"]`)) continue;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.filter = year;
+      button.dataset.inspireYear = "";
+      button.setAttribute("aria-pressed", "false");
+      button.textContent = year;
+      const firstOlder = [...journalFilters.querySelectorAll('button[data-filter]:not([data-filter="all"])')]
+        .find((item) => Number(item.dataset.filter) < Number(year));
+      journalFilters.insertBefore(button, firstOlder ?? null);
+    }
+    journalSection.dispatchEvent(new Event("literature-updated"));
+  };
+
+  let previousSnapshot;
+  let previousJournals = "[]";
   const updateLiteratureSections = async () => {
     const records = await loadLiterature();
     const seenPreprints = new Set(publishedArxivIds);
     const seenConferencePapers = new Set();
     const preprints = [];
     const conferencePapers = [];
+    const journalPapers = [];
+    const seenJournalIds = new Set(publishedArxivIds);
+    const seenJournalDois = new Set(publishedDois);
 
     for (const { metadata } of records) {
       const id = arxivId(metadata);
@@ -573,13 +635,14 @@ if (preprintSection && conferencePaperSection) {
       const id = arxivId(metadata);
       const arxivUrl = id && `https://arxiv.org/abs/${id}`;
 
+      const doi = metadata.dois?.find(({ value }) => /^10\.(?!48550\/)\d{4,9}\/.+/.test(value))?.value;
+      const doiUrl = doi && `https://doi.org/${encodeURI(doi).replaceAll("#", "%23").replaceAll("?", "%3F")}`;
+      const inspireUrl = /^\d+$/.test(recordId) && `https://inspirehep.net/literature/${recordId}`;
+
       if (isConferencePaper(metadata)) {
         const key = id || recordId;
         if (seenConferencePapers.has(key)) continue;
-        const doi = metadata.dois?.find(({ value }) => /^10\.(?!48550\/)\d{4,9}\/.+/.test(value))?.value;
-        const proceedingsUrl = doi && `https://doi.org/${encodeURI(doi).replaceAll("#", "%23").replaceAll("?", "%3F")}`;
-        const inspireUrl = /^\d+$/.test(recordId) && `https://inspirehep.net/literature/${recordId}`;
-        const href = proceedingsUrl || arxivUrl || inspireUrl;
+        const href = doiUrl || arxivUrl || inspireUrl;
         if (!href) continue;
 
         seenConferencePapers.add(key);
@@ -587,20 +650,62 @@ if (preprintSection && conferencePaperSection) {
           title,
           label: metadata.publication_info?.find(({ year }) => year)?.year ?? "Paper",
           href,
-          linkText: proceedingsUrl ? "Proceedings" : arxivUrl ? "arXiv" : "INSPIRE-HEP",
+          linkText: doiUrl ? "Proceedings" : arxivUrl ? "arXiv" : "INSPIRE-HEP",
         });
+      } else if (isPublished(metadata)) {
+        const key = id || recordId;
+        const doiKey = doi?.toLowerCase();
+        if (seenJournalIds.has(key) || (doiKey && seenJournalDois.has(doiKey))) continue;
+        const href = doiUrl || inspireUrl || arxivUrl;
+        if (!href) continue;
+        seenJournalIds.add(key);
+        if (doiKey) seenJournalDois.add(doiKey);
+
+        const journal = metadata.publication_info.find((entry) => entry.journal_title || entry.journal_record) ??
+          metadata.publication_info[0];
+        const year = String(journal.year ?? metadata.earliest_date?.slice(0, 4) ?? "");
+        const validYear = /^\d{4}$/.test(year) ? year : "";
+        const citation = journal.journal_title
+          ? [journal.journal_title, journal.journal_volume, validYear && `(${validYear})`, journal.artid || journal.page_start].filter(Boolean).join(" ")
+          : journal.pubinfo_freetext;
+        journalPapers.push({ title, label: validYear || "Paper", year: validYear, citation, href,
+          linkText: doiUrl ? "Journal" : inspireUrl ? "INSPIRE-HEP" : "arXiv" });
       } else if (id && !seenPreprints.has(id)) {
         seenPreprints.add(id);
         preprints.push({ title, label: "arXiv", href: arxivUrl, linkText: "arXiv" });
       }
     }
 
-    renderPapers(preprintSection, "[data-preprint-results]", preprints);
-    renderPapers(conferencePaperSection, "[data-conference-paper-results]", conferencePapers);
+    const snapshot = JSON.stringify([preprints, conferencePapers]);
+    if (snapshot !== previousSnapshot) {
+      renderPapers(preprintSection, "[data-preprint-results]", preprints);
+      renderPapers(conferencePaperSection, "[data-conference-paper-results]", conferencePapers);
+      previousSnapshot = snapshot;
+    }
+    const journalSnapshot = JSON.stringify(journalPapers);
+    if (journalSnapshot !== previousJournals) {
+      renderJournalPapers(journalPapers);
+      previousJournals = journalSnapshot;
+    }
   };
 
-  updateLiteratureSections().catch(() => {
-    preprintSection.hidden = true;
-    conferencePaperSection.hidden = true;
-  });
+  const refreshInterval = 5 * 60 * 1000;
+  let lastCheck = 0;
+  let refreshPending = false;
+  const refreshLiterature = async () => {
+    if (document.hidden || refreshPending || Date.now() - lastCheck < refreshInterval) return;
+    lastCheck = Date.now();
+    refreshPending = true;
+    try {
+      await updateLiteratureSections();
+    } catch {
+      // Keep the last successful results if INSPIRE is temporarily unavailable.
+    } finally {
+      refreshPending = false;
+    }
+  };
+
+  refreshLiterature();
+  window.setInterval(refreshLiterature, refreshInterval);
+  document.addEventListener("visibilitychange", refreshLiterature);
 }
