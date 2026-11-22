@@ -490,3 +490,73 @@ if (researchCards && researchScrollControls) {
   researchCards.addEventListener("scroll", updateArrows, { passive: true });
   window.addEventListener("resize", updateArrows);
 }
+
+const mailAppLinks = document.querySelectorAll("[data-mail-app]");
+const androidDevice = /Android/i.test(navigator.userAgent);
+const appleMobileDevice = /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+  (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+let cancelMailAppAttempt;
+
+for (const link of mailAppLinks) {
+  const webUrl = new URL(link.href);
+  const address = webUrl.searchParams.get("to");
+  if (!address) continue;
+
+  const gmail = link.dataset.mailApp === "gmail";
+  const recipient = encodeURIComponent(address);
+  const composeUrl = gmail ? `googlegmail:///co?to=${recipient}` : `ms-outlook://compose?to=${recipient}`;
+  const androidPackage = gmail ? "com.google.android.gm" : "com.microsoft.office.outlook";
+  const intentUrl = `intent:${recipient}#Intent;scheme=mailto;action=android.intent.action.SENDTO;` +
+    `package=${androidPackage};S.browser_fallback_url=${encodeURIComponent(webUrl.href)};end`;
+  const webLabel = link.getAttribute("aria-label");
+
+  const updateMailLink = () => {
+    cancelMailAppAttempt?.();
+    const useApp = phoneLayout.matches && (androidDevice || appleMobileDevice);
+    link.href = useApp && androidDevice ? intentUrl : webUrl.href;
+    link.setAttribute("aria-label", useApp ? webLabel.replace(" (opens in a new tab)", "") : webLabel);
+  };
+
+  updateMailLink();
+  phoneLayout.addEventListener("change", updateMailLink);
+
+  if (!appleMobileDevice) continue;
+  let webFallback;
+  link.addEventListener("click", (event) => {
+    if (!phoneLayout.matches || event.defaultPrevented ||
+        event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    event.preventDefault();
+    cancelMailAppAttempt?.();
+    webFallback?.remove();
+
+    const stop = () => {
+      window.clearTimeout(fallbackTimer);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("pagehide", stop);
+      cancelMailAppAttempt = undefined;
+    };
+    const onVisibilityChange = () => { if (document.hidden) stop(); };
+    const openWebmail = () => {
+      stop();
+      if (document.hidden) return;
+      const tab = window.open("about:blank", "_blank");
+      if (tab) {
+        tab.opener = null;
+        tab.location.replace(webUrl.href);
+        return;
+      }
+
+      webFallback = link.cloneNode(false);
+      webFallback.removeAttribute("data-mail-app");
+      webFallback.removeAttribute("aria-label");
+      webFallback.textContent = `Open ${link.textContent.trim()} in browser`;
+      link.after(webFallback);
+    };
+    const fallbackTimer = window.setTimeout(openWebmail, 700);
+    cancelMailAppAttempt = stop;
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("pagehide", stop);
+
+    window.location.href = composeUrl;
+  });
+}
