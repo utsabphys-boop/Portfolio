@@ -599,7 +599,7 @@ h2 { margin-top: 9px; font: 400 clamp(42px, 5vw, 70px)/.99 var(--serif); letter-
 .open-label, details[open] .closed-label { display: none; }
 details[open] .open-label { display: inline; }
 
-@media (min-width: 681px) and (prefers-reduced-motion: no-preference) {
+@media (prefers-reduced-motion: no-preference) {
   .research-card .card-action {
     --label-duration: 320ms;
     --label-easing: cubic-bezier(.2,.65,.3,1);
