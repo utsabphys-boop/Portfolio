@@ -163,6 +163,19 @@ for (const section of document.querySelectorAll("[data-year-filter]")) {
   filters.hidden = false;
 
   const selectedIndex = () => buttons.findIndex((button) => button.getAttribute("aria-pressed") === "true");
+  const positionYearPill = (next, progress = 0) => {
+    if (!phoneLayout.matches) return;
+
+    const current = buttons[selectedIndex()];
+    next ??= current;
+    const left = current.offsetLeft + (next.offsetLeft - current.offsetLeft) * progress;
+    const width = current.offsetWidth + (next.offsetWidth - current.offsetWidth) * progress;
+    filters.style.setProperty("--year-pill-x", `${left}px`);
+    filters.style.setProperty("--year-pill-width", `${width}px`);
+  };
+
+  positionYearPill();
+  window.addEventListener("resize", () => positionYearPill());
   const canAnimate = () => !portfolioMotionPreference.matches && typeof results.animate === "function";
   const stopTransition = () => {
     for (const animation of transition) animation.cancel();
@@ -211,6 +224,7 @@ for (const section of document.querySelectorAll("[data-year-filter]")) {
     for (const button of buttons) {
       button.setAttribute("aria-pressed", String(button === selected));
     }
+    positionYearPill();
 
     const count = filterEntries(entries, selected.dataset.filter);
     const noun = count === 1 ? itemName : `${itemName}s`;
@@ -241,8 +255,8 @@ for (const section of document.querySelectorAll("[data-year-filter]")) {
     const { offset, preview, direction, next } = current;
     results.style.transform = "";
     filters.removeAttribute("data-dragging");
-    for (const button of buttons) button.style.removeProperty("--year-highlight");
     if (!offset) {
+      positionYearPill();
       preview?.remove();
       return;
     }
@@ -252,6 +266,7 @@ for (const section of document.querySelectorAll("[data-year-filter]")) {
       return;
     }
 
+    positionYearPill();
     if (canAnimate()) {
       const options = { duration: 200 };
       transition = [slideFrom(results, `${offset}px`, "0px", options)];
@@ -306,13 +321,7 @@ for (const section of document.querySelectorAll("[data-year-filter]")) {
     const width = viewport.clientWidth;
     drag.offset = Math.max(-width, Math.min(width, drag.next ? dx : dx * .22));
     if (canAnimate()) {
-      const current = selectedIndex();
-      const next = buttons.indexOf(drag.next);
-      const blend = next >= 0 ? Math.min(1, Math.abs(drag.offset) / (width * .55)) : 0;
-      for (const [index, button] of buttons.entries()) {
-        const strength = index === current ? 1 - blend : index === next ? blend : 0;
-        button.style.setProperty("--year-highlight", `${strength * 100}%`);
-      }
+      positionYearPill(drag.next, Math.min(1, Math.abs(drag.offset) / width));
       results.style.transform = `translateX(${drag.offset}px)`;
       if (drag.preview) drag.preview.style.transform = `translateX(calc(${direction * 100}% + ${drag.offset}px))`;
     }
