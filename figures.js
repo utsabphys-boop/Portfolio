@@ -1,6 +1,11 @@
 const gallery = document.querySelector("[data-figure-gallery]");
 const stage = gallery.querySelector(".gallery-stage");
-const slides = [...gallery.querySelectorAll(".gallery-slide")];
+const desktopSlides = [...gallery.querySelectorAll(".gallery-slide")];
+const featuredSlide = stage.querySelector("[data-featured-figure]");
+const phoneSlides = featuredSlide
+  ? [featuredSlide, ...desktopSlides.filter((slide) => slide !== featuredSlide)]
+  : desktopSlides;
+let slides = phoneLayout.matches ? phoneSlides : desktopSlides;
 const controls = gallery.querySelector(".gallery-controls");
 const navigation = gallery.querySelector(".gallery-navigation");
 const playbackSwitch = gallery.querySelector(".gallery-playback-switch");
@@ -89,11 +94,26 @@ function showFigure(step, announce = false) {
   prepareAdjacentFigures();
 
   if (announce) {
-    const title = current.querySelector(".gallery-figure-title").textContent;
+    const titleElement = phoneLayout.matches
+      ? current.querySelector(".gallery-feature-title, .gallery-figure-title")
+      : current.querySelector(".gallery-figure-title");
+    const title = titleElement.textContent;
     status.textContent = `Slide ${position}. ${title}.`;
   }
   schedule();
 }
+
+for (const slide of slides) slide.hidden = slide !== slides[active];
+slides[active].querySelector("img").loading = "eager";
+
+phoneLayout.addEventListener("change", () => {
+  clearTransition?.();
+  const current = slides[active];
+  slides = phoneLayout.matches ? phoneSlides : desktopSlides;
+  active = slides.indexOf(current);
+  updateProgress();
+  prepareAdjacentFigures();
+});
 
 progress.setAttribute("aria-valuemax", String(slides.length));
 updateProgress();

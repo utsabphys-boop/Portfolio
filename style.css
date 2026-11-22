@@ -392,6 +392,7 @@ h2 { margin-top: 9px; font: 400 clamp(42px, 5vw, 70px)/.99 var(--serif); letter-
 
 .gallery-media img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .gallery-caption { align-items: start; border-top: 1px solid #e4e9f0; }
+.gallery-feature-title { display: none; }
 .gallery-figure-title { color: var(--text); font-size: 1rem; font-weight: 650; }
 .gallery-caption .text-link { font-size: .875rem; }
 .gallery-full-size { white-space: nowrap; }
@@ -878,6 +879,15 @@ details[open] > summary :is(.card-arrow, .disclosure-arrow) { transform: rotate(
   .hero-actions .button, .cv-actions .button, .statement-panel .button { min-height: 44px; }
   .research-gallery { --figure-height: clamp(10.5rem, 57vw, 20rem); }
   .gallery-media { padding: .5rem .35rem; }
+  .gallery-feature-title {
+    display: block;
+    padding: .85rem .9rem 0;
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 650;
+    line-height: 1.35;
+  }
+  [data-featured-figure] .gallery-figure-title { display: none; }
   .gallery-navigation {
     position: static;
     justify-content: end;
