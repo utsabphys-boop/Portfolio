@@ -488,27 +488,31 @@ if (researchCards && researchScrollControls) {
 }
 
 const preprintSection = document.getElementById("preprints");
-if (preprintSection) {
-  const preprintList = preprintSection.querySelector("[data-preprint-results]");
+const conferencePaperSection = document.getElementById("conference-papers");
+
+if (preprintSection && conferencePaperSection) {
   const publishedArxivIds = new Set(
     [...document.querySelectorAll('#publications a[href^="https://arxiv.org/abs/"]')]
       .map((link) => link.pathname.slice("/abs/".length).replace(/v\d+$/, "")),
   );
-  const arxivId = (record) => record.arxiv_eprints?.[0]?.value?.replace(/v\d+$/, "");
+
+  const arxivId = (record) => {
+    const id = record.arxiv_eprints?.[0]?.value?.replace(/v\d+$/, "");
+    return /^(?:\d{4}\.\d{4,5}|[a-z-]+(?:\.[A-Z]{2})?\/\d{7})$/.test(id) ? id : undefined;
+  };
   const isPublished = (record) => record.publication_info?.some(
     (entry) => entry.journal_title || entry.journal_record ||
       (entry.material === "publication" && entry.pubinfo_freetext),
   );
-  let request;
+  const isConferencePaper = (record) => record.document_type?.includes("conference paper");
 
-  const loadPreprints = async () => {
+  const loadLiterature = async () => {
     const endpoint = new URL("https://inspirehep.net/api/literature");
-    const pageSize = 100;
     endpoint.search = new URLSearchParams({
       q: "authors.recid:2896573",
-      size: String(pageSize),
+      size: "100",
       sort: "mostrecent",
-      fields: "titles,arxiv_eprints,publication_info",
+      fields: "titles,arxiv_eprints,publication_info,document_type,dois",
     });
 
     const records = [];
@@ -520,58 +524,83 @@ if (preprintSection) {
       const { hits } = await response.json();
       total = hits.total;
       if (!hits.hits.length) break;
-      records.push(...hits.hits.map((result) => result.metadata));
+      records.push(...hits.hits);
     }
+    return records;
+  };
 
-    const seen = new Set(publishedArxivIds);
-    for (const record of records) {
-      if (isPublished(record)) seen.add(arxivId(record));
-    }
-
+  const renderPapers = (section, selector, papers) => {
     const rows = document.createDocumentFragment();
-    for (const record of records) {
-      const id = arxivId(record);
-      const title = record.titles?.[0]?.title;
-      if (!id || !title || seen.has(id) ||
-          !/^(?:\d{4}\.\d{4,5}|[a-z-]+(?:\.[A-Z]{2})?\/\d{7})$/.test(id)) continue;
-      seen.add(id);
-
+    for (const { title, label, href, linkText } of papers) {
       const row = document.createElement("article");
       row.className = "publication";
       const type = document.createElement("span");
       type.className = "publication-type";
-      type.textContent = "arXiv";
+      type.textContent = label;
       const heading = document.createElement("h3");
       heading.textContent = title;
       const links = document.createElement("div");
       links.className = "publication-links";
       const link = document.createElement("a");
       link.className = "text-link";
-      link.href = `https://arxiv.org/abs/${id}`;
-      link.textContent = `arXiv:${id}`;
+      link.href = href;
+      link.textContent = linkText;
+      link.setAttribute("aria-label", `${linkText}: ${title}`);
       links.append(link);
       row.append(type, heading, links);
       rows.append(row);
     }
 
-    preprintList.replaceChildren(rows);
+    section.querySelector(selector).replaceChildren(rows);
+    section.hidden = !papers.length;
   };
 
-  const updatePreprintVisibility = async () => {
-    if (phoneLayout.matches) {
-      preprintSection.hidden = true;
-      return;
+  const updateLiteratureSections = async () => {
+    const records = await loadLiterature();
+    const seenPreprints = new Set(publishedArxivIds);
+    const seenConferencePapers = new Set();
+    const preprints = [];
+    const conferencePapers = [];
+
+    for (const { metadata } of records) {
+      const id = arxivId(metadata);
+      if (id && (isPublished(metadata) || isConferencePaper(metadata))) seenPreprints.add(id);
     }
-    request ??= loadPreprints();
-    try {
-      await request;
-      preprintSection.hidden = phoneLayout.matches || !preprintList.childElementCount;
-    } catch {
-      request = undefined;
-      preprintSection.hidden = true;
+
+    for (const { id: recordId, metadata } of records) {
+      const title = metadata.titles?.[0]?.title;
+      if (!title) continue;
+      const id = arxivId(metadata);
+      const arxivUrl = id && `https://arxiv.org/abs/${id}`;
+
+      if (isConferencePaper(metadata)) {
+        const key = id || recordId;
+        if (seenConferencePapers.has(key)) continue;
+        const doi = metadata.dois?.find(({ value }) => /^10\.(?!48550\/)\d{4,9}\/.+/.test(value))?.value;
+        const proceedingsUrl = doi && `https://doi.org/${encodeURI(doi).replaceAll("#", "%23").replaceAll("?", "%3F")}`;
+        const inspireUrl = /^\d+$/.test(recordId) && `https://inspirehep.net/literature/${recordId}`;
+        const href = proceedingsUrl || arxivUrl || inspireUrl;
+        if (!href) continue;
+
+        seenConferencePapers.add(key);
+        conferencePapers.push({
+          title,
+          label: metadata.publication_info?.find(({ year }) => year)?.year ?? "Paper",
+          href,
+          linkText: proceedingsUrl ? "Proceedings" : arxivUrl ? "arXiv" : "INSPIRE-HEP",
+        });
+      } else if (id && !seenPreprints.has(id)) {
+        seenPreprints.add(id);
+        preprints.push({ title, label: "arXiv", href: arxivUrl, linkText: "arXiv" });
+      }
     }
+
+    renderPapers(preprintSection, "[data-preprint-results]", preprints);
+    renderPapers(conferencePaperSection, "[data-conference-paper-results]", conferencePapers);
   };
 
-  phoneLayout.addEventListener("change", updatePreprintVisibility);
-  updatePreprintVisibility();
+  updateLiteratureSections().catch(() => {
+    preprintSection.hidden = true;
+    conferencePaperSection.hidden = true;
+  });
 }
