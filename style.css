@@ -598,6 +598,37 @@ h2 { margin-top: 9px; font: 400 clamp(42px, 5vw, 70px)/.99 var(--serif); letter-
 .card-arrow { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #fff9; font-size: 16px; line-height: 1; }
 .open-label, details[open] .closed-label { display: none; }
 details[open] .open-label { display: inline; }
+
+@media (min-width: 681px) and (prefers-reduced-motion: no-preference) {
+  .research-card .card-action {
+    --label-duration: 320ms;
+    --label-easing: cubic-bezier(.2,.65,.3,1);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .research-card[data-closing] .card-action {
+    --label-duration: 420ms;
+    --label-easing: cubic-bezier(.45,0,.25,1);
+  }
+
+  .research-card .card-action :is(.closed-label, .open-label) {
+    display: block;
+    grid-area: 1 / 1;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--label-duration) var(--label-easing),
+      visibility 0s linear var(--label-duration);
+  }
+
+  .research-card:not([open]) .closed-label,
+  .research-card[data-closing] .closed-label,
+  .research-card[open]:not([data-closing]) .open-label {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+}
 details[open] > summary :is(.card-arrow, .disclosure-arrow) { transform: rotate(180deg); }
 .project-detail { margin: 0 23px 23px; }
 .project-detail .text-link { margin-top: 11px; }

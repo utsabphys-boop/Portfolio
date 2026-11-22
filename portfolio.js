@@ -107,9 +107,11 @@ for (const card of document.querySelectorAll("details")) {
 
     if (portfolioMotionPreference.matches) {
       card.open = targetOpen;
+      card.removeAttribute("data-closing");
       return;
     }
 
+    card.toggleAttribute("data-closing", !open);
     let endHeight;
     if (targetOpen) {
       card.open = true;
@@ -140,6 +142,7 @@ for (const card of document.querySelectorAll("details")) {
       if (animation !== resize) return;
       animation = undefined;
       card.open = targetOpen;
+      card.removeAttribute("data-closing");
       arrowRotation = undefined;
       turn?.cancel();
       resize.cancel();
